@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+    <title>Chat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <ul id="messages"></ul>
+    <input id="message" autocomplete="off"><button onclick="sendMessage()">Send</button>
+    <script>
+        var socket = io();
+        socket.on('connect', function() {
+            console.log('Connected to server');
+        });
+
+        socket.on('message', function(msg){
+            $('#messages').append($('<li>').text(msg));
+        });
+
+        function sendMessage() {
+            var message = $('#message').val();
+            socket.send(message);
+            $('#message').val('');
+        }
+    </script>
+</body>
+</html>
