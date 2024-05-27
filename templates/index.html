@@ -1,44 +1,12 @@
-<!doctype html>
 <html>
 <head>
-    <title>Game Lobby</title>
+    <title>Chat</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f0f0f0;
-        }
-        .button-container {
-            text-align: center;
-        }
-        button {
-            display: block;
-            width: 200px;
-            margin: 20px auto;
-            padding: 10px;
-            font-size: 18px;
-            cursor: pointer;
-        }
-        .chat-container {
-            display: none;
-        }
-    </style>
 </head>
 <body>
-    <div class="button-container">
-        <button id="create-game">Create Game</button>
-        <button id="join-game">Join Game</button>
-    </div>
-
-    <div class="chat-container">
-        <ul id="messages"></ul>
-        <input id="message" autocomplete="off"><button onclick="sendMessage()">Send</button>
-    </div>
-
+    <ul id="messages"></ul>
+    <input id="message" autocomplete="off"><button onclick="sendMessage()">Send</button>
     <script>
         var socket = io();
         socket.on('connect', function() {
@@ -53,23 +21,6 @@
             var message = $('#message').val();
             socket.send(message);
             $('#message').val('');
-        }
-
-        document.getElementById('create-game').addEventListener('click', function() {
-            // Logika dla tworzenia gry
-            // Możesz tu dodać logikę dla stworzenia gry, np. emitowanie eventu do serwera
-            startChat();
-        });
-
-        document.getElementById('join-game').addEventListener('click', function() {
-            // Logika dla dołączania do gry
-            // Możesz tu dodać logikę dla dołączania do gry, np. emitowanie eventu do serwera
-            startChat();
-        });
-
-        function startChat() {
-            document.querySelector('.button-container').style.display = 'none';
-            document.querySelector('.chat-container').style.display = 'block';
         }
     </script>
 </body>
