@@ -1,27 +1,45 @@
+<!doctype html>
 <html>
 <head>
-    <title>Chat</title>
+    <title>Kurwa Statki</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
+    <div>
+        <label for="username">Username:</label>
+        <input type="text" id="username">
+        <label for="room">Room:</label>
+        <input type="text" id="room">
+        <button onclick="joinRoom()">Join Room</button>
+        <button onclick="leaveRoom()">Leave Room</button>
+    </div>
     <ul id="messages"></ul>
     <input id="message" autocomplete="off"><button onclick="sendMessage()">Send</button>
     <script>
         var socket = io();
-        socket.on('connect', function() {
-            console.log('Connected to server');
-        });
+        var room;
 
-        socket.on('message', function(msg){
-            $('#messages').append($('<li>').text(msg));
-        });
+        function joinRoom() {
+            var username = $('#username').val();
+            room = $('#room').val();
+            socket.emit('join', {'username': username, 'room': room});
+        }
+
+        function leaveRoom() {
+            var username = $('#username').val();
+            socket.emit('leave', {'username': username, 'room': room});
+        }
 
         function sendMessage() {
             var message = $('#message').val();
-            socket.send(message);
+            socket.emit('send_message', {'msg': message, 'username': $('#username').val(), 'room': room});
             $('#message').val('');
         }
+
+        socket.on('message', function(data){
+            $('#messages').append($('<li>').text(data.username + ': ' + data.msg));
+        });
     </script>
 </body>
 </html>
