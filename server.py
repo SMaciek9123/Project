@@ -58,7 +58,8 @@ def on_wait_for_player(data):
     room = data['room']
     join_room(room)
     if len(lobbies[room]['players']) == 2:
-        emit('startGame', room=room)
+        size = lobbies[room]['size']
+        emit('startGame', {'size': size}, room=room)
 
 @socketio.on('getLobbies')
 def on_get_lobbies():
@@ -72,8 +73,9 @@ def on_join(data):
     if room in lobbies and len(lobbies[room]['players']) == 1:
         lobbies[room]['players'].append(username)
         join_room(room)
+        size = lobbies[room]['size']
         emit('message', {'msg': f'{username} has entered the room.'}, room=room)
-        emit('startGame', room=room)
+        emit('startGame', {'size': size}, room=room)
 
 @socketio.on('disconnect')
 def on_disconnect():

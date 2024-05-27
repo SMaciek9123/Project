@@ -5,7 +5,9 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-image: url("/static/images/background.jpg");            background-repeat: no-repeat;
+            background-image: url("/static/images/background.jpg");  
+            background-size: cover;
+            background-repeat: no-repeat;
             color: white;
             margin: 0;
             display: flex;
@@ -22,9 +24,36 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
-        h1 {
-            margin-bottom: 20px;
-            font-size: 1.5em;
+        #board-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #board {
+            display: grid;
+            gap: 1px;
+            margin-top: 20px;
+        }
+        .cell {
+            width: 30px;
+            height: 30px;
+            background-color: white;
+            border: 1px solid black;
+        }
+        .row-label, .col-label {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.7);
+            border: 1px solid black;
+        }
+        .row-label {
+            width: 30px;
+            height: 30px;
+        }
+        .col-label {
+            width: 30px;
+            height: 30px;
         }
     </style>
 </head>
@@ -32,6 +61,9 @@
     <div class="container">
         <h1>Game Start</h1>
         <div id="game-info"></div>
+        <div id="board-container">
+            <div id="board"></div>
+        </div>
     </div>
     <script>
         var urlParams = new URLSearchParams(window.location.search);
@@ -40,6 +72,55 @@
         var size = urlParams.get('size');
 
         document.getElementById('game-info').innerText = 'Room: ' + room + ', Board Size: ' + size;
+
+        function createBoard(size) {
+            var boardContainer = document.getElementById('board-container');
+            var board = document.createElement('div');
+            board.id = 'board';
+            var dimensions = size.split('x');
+            var rows = parseInt(dimensions[0]);
+            var cols = parseInt(dimensions[1]);
+
+            board.style.gridTemplateRows = `repeat(${rows + 1}, 1fr)`; // +1 for row labels
+            board.style.gridTemplateColumns = `repeat(${cols + 1}, 1fr)`; // +1 for column labels
+
+            // Add column labels
+            var emptyCorner = document.createElement('div');
+            emptyCorner.className = 'col-label';
+            board.appendChild(emptyCorner);
+
+            for (var c = 1; c <= cols; c++) {
+                var colLabel = document.createElement('div');
+                colLabel.className = 'col-label';
+                colLabel.innerText = c;
+                board.appendChild(colLabel);
+            }
+
+            for (var r = 0; r < rows; r++) {
+                // Add row label
+                var rowLabel = document.createElement('div');
+                rowLabel.className = 'row-label';
+                rowLabel.innerText = String.fromCharCode(65 + r);
+                board.appendChild(rowLabel);
+
+                for (var c = 0; c < cols; c++) {
+                    var cell = document.createElement('div');
+                    cell.className = 'cell';
+                    board.appendChild(cell);
+                }
+            }
+
+            boardContainer.appendChild(board);
+        }
+
+        createBoard(size);
+
+        var socket = io();
+        socket.emit('joinRoom', {username: username, room: room, size: size});
+
+        socket.on('startGame', function(data) {
+            createBoard(data.size);
+        });
     </script>
 </body>
 </html>
