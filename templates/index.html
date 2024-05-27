@@ -1,44 +1,126 @@
 <!doctype html>
 <html>
 <head>
-    <title>Kurwa Statki</title>
+    <title>Battleships</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url("C:/Users/macie/Desktop/STUDIA/Sem6/SystemyRozproszone/Projekt/static/images/background.jpg");
+            background-size: cover;
+            background-repeat: no-repeat;
+            color: white;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .container {
+            text-align: center;
+            max-width: 300px;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            transform: translateY(-33vh);
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        label {
+            font-size: 1em;
+        }
+        input {
+            display: block;
+            width: 80%;
+            margin: 10px auto;
+            font-size: 0.8em;
+            padding: 5px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+        }
+        input:focus {
+            outline: none;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+        }
+        button {
+            width: 120px;
+            margin: 10px 5px;
+            padding: 5px;
+            font-size: 0.8em;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .error-message {
+            color: red;
+            font-size: 0.8em;
+            display: none;
+        }
+    </style>
 </head>
 <body>
-    <div>
-        <label for="username">Username:</label>
-        <input type="text" id="username">
-        <label for="room">Room:</label>
-        <input type="text" id="room">
-        <button onclick="joinRoom()">Join Room</button>
-        <button onclick="leaveRoom()">Leave Room</button>
+    <div class="container">
+        <h1>Welcome to our Battleships!</h1>
+        <div>
+            <label for="username">Username:</label>
+            <input type="text" id="username">
+            <div id="username-error" class="error-message">Please enter a username.</div>
+            <div class="button-container">
+                <button id="create-game" onclick="validateAndCreateRoom()">Create Game</button>
+                <button id="join-game" onclick="validateAndJoinLobby()">Join Game</button>
+            </div>
+        </div>
+        <ul id="messages"></ul>
     </div>
-    <ul id="messages"></ul>
-    <input id="message" autocomplete="off"><button onclick="sendMessage()">Send</button>
     <script>
         var socket = io();
-        var room;
 
-        function joinRoom() {
-            var username = $('#username').val();
-            room = $('#room').val();
-            socket.emit('join', {'username': username, 'room': room});
+        function validateUsername() {
+            var username = document.getElementById('username').value.trim();
+            var usernameError = document.getElementById('username-error');
+            var usernameInput = document.getElementById('username');
+
+            if (username) {
+                usernameInput.style.borderColor = 'green';
+                usernameError.style.display = 'none';
+                return true;
+            } else {
+                usernameInput.style.borderColor = 'red';
+                usernameError.style.display = 'block';
+                return false;
+            }
         }
 
-        function leaveRoom() {
-            var username = $('#username').val();
-            socket.emit('leave', {'username': username, 'room': room});
+        function validateAndCreateRoom() {
+            if (validateUsername()) {
+                var username = document.getElementById('username').value.trim();
+                window.location.href = '/lobby-list?username=' + encodeURIComponent(username) + '&action=create';
+            }
         }
 
-        function sendMessage() {
-            var message = $('#message').val();
-            socket.emit('send_message', {'msg': message, 'username': $('#username').val(), 'room': room});
-            $('#message').val('');
+        function validateAndJoinLobby() {
+            if (validateUsername()) {
+                var username = document.getElementById('username').value.trim();
+                window.location.href = '/lobby-list?username=' + encodeURIComponent(username);
+            }
         }
 
         socket.on('message', function(data){
-            $('#messages').append($('<li>').text(data.username + ': ' + data.msg));
+            $('#messages').append($('<li>').text(data.msg));
         });
     </script>
 </body>

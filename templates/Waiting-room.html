@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+<head>
+    <title>Waiting Room</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url("C:/Users/macie/Desktop/STUDIA/Sem6/SystemyRozproszone/Projekt/static/images/background.jpg"); /* Ścieżka do lokalnego obrazu */
+            background-size: cover;
+            background-repeat: no-repeat;
+            color: white;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .container {
+            text-align: center;
+            max-width: 300px;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Waiting for another player...</h1>
+        <div id="waiting-message">Room: <span id="room-name"></span></div>
+    </div>
+    <script>
+        var socket = io();
+        var urlParams = new URLSearchParams(window.location.search);
+        var username = urlParams.get('username');
+        var room = urlParams.get('room');
+        var size = urlParams.get('size');
+
+        document.getElementById('room-name').innerText = room;
+
+        socket.emit('waitForPlayer', {'username': username, 'room': room, 'size': size});
+
+        socket.on('startGame', function(data) {
+            window.location.href = '/game?username=' + encodeURIComponent(username) + '&room=' + encodeURIComponent(room) + '&size=' + encodeURIComponent(size);
+        });
+    </script>
+</body>
+</html>

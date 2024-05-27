@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+<head>
+    <title>Lobby List</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url("C:/Users/macie/Desktop/STUDIA/Sem6/SystemyRozproszone/Projekt/static/images/background.jpg");
+            background-size: cover;
+            background-repeat: no-repeat;
+            color: white;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .container {
+            text-align: center;
+            max-width: 400px;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        li:hover {
+            background-color: #0056b3;
+        }
+        #room-input-container {
+            display: none;
+            margin-bottom: 20px;
+        }
+        #room-input-container input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px auto;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            display: block;
+        }
+        #room-input-container button {
+            width: 80%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: block;
+            margin: 10px auto;
+        }
+        #room-input-container button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="lobby-title">Available Lobbies</h1>
+        <div id="room-input-container">
+            <input type="text" id="room" placeholder="Enter room number">
+            <button onclick="createRoom()">Create Room</button>
+        </div>
+        <ul id="lobby-list"></ul>
+    </div>
+    <script>
+        var socket = io();
+        var urlParams = new URLSearchParams(window.location.search);
+        var username = urlParams.get('username');
+        var action = urlParams.get('action');
+
+        if (action === 'create') {
+            document.getElementById('room-input-container').style.display = 'block';
+            document.getElementById('lobby-title').innerText = 'Create a Room';
+        } else {
+            socket.emit('getLobbies');
+        }
+
+        socket.on('lobbies', function(lobbies) {
+            var lobbyList = $('#lobby-list');
+            lobbyList.empty();
+            lobbies.forEach(function(lobby) {
+                lobbyList.append('<li onclick="joinLobby(\'' + lobby + '\')">Room: ' + lobby + '</li>');
+            });
+        });
+
+        function createRoom() {
+            var room = document.getElementById('room').value.trim();
+            if (room) {
+                socket.emit('create', {'username': username, 'room': room});
+                window.location.href = '/game-settings?username=' + encodeURIComponent(username) + '&room=' + encodeURIComponent(room);
+            }
+        }
+
+        function joinLobby(room) {
+            socket.emit('join', {'username': username, 'room': room});
+            window.location.href = '/game?username=' + encodeURIComponent(username) + '&room=' + encodeURIComponent(room);
+        }
+    </script>
+</body>
+</html>

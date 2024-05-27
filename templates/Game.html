@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+<head>
+    <title>Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url("C:/Users/macie/Desktop/STUDIA/Sem6/SystemyRozproszone/Projekt/static/images/background.jpg");            background-size: cover;
+            background-repeat: no-repeat;
+            color: white;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Game Start</h1>
+        <div id="game-info"></div>
+    </div>
+    <script>
+        var urlParams = new URLSearchParams(window.location.search);
+        var username = urlParams.get('username');
+        var room = urlParams.get('room');
+        var size = urlParams.get('size');
+
+        document.getElementById('game-info').innerText = 'Room: ' + room + ', Board Size: ' + size;
+    </script>
+</body>
+</html>
