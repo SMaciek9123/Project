@@ -85,14 +85,28 @@
         var socket = io();
         var urlParams = new URLSearchParams(window.location.search);
         var username = urlParams.get('username');
-        var action = urlParams.get('action');
 
-        if (action === 'create') {
+         function isLogged(){
+            socket.emit('getUsers');
+            socket.on("giveUsers", (users) => {
+            alert(users);
+            if(users.includes(document.cookie)) //zrobić oddzielenie ciasteczek document.cookie="username=nicktwój"
+            {
+                alert("działa, zrób teraz funkcje!(i dodaj zaprzeczenie: !users.includes(document.cookie))");
+            }
+            });
+
+            if(document.cookie==""){
+            window.location.href = '/';
+            }
+            }
+
+         isLogged();
+
+
             document.getElementById('room-input-container').style.display = 'block';
             document.getElementById('lobby-title').innerText = 'Create a Room';
-        } else {
             socket.emit('getLobbies');
-        }
 
         socket.on('lobbies', function(lobbies) {
             var lobbyList = $('#lobby-list');
@@ -112,8 +126,11 @@
 
         function joinLobby(room) {
             socket.emit('join', {'username': username, 'room': room});
-            window.location.href = '/game?username=' + encodeURIComponent(username) + '&room=' + encodeURIComponent(room);
         }
+
+        socket.on('startGame', function(data) {
+            window.location.href = '/game?username=' + encodeURIComponent(username) + '&room=' + encodeURIComponent(room) + '&size=' + encodeURIComponent(size);
+        });
     </script>
 </body>
 </html>

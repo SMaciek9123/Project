@@ -87,6 +87,10 @@
     </div>
     <script>
         var socket = io();
+        if(document.cookie!=""){
+            var username = document.getElementById('username').value.trim();
+            window.location.href = '/lobby-list?username=' + encodeURIComponent(username) + '&action=create';
+        }
 
         function validateUsername() {
             var username = document.getElementById('username').value.trim();
@@ -96,6 +100,8 @@
             if (username) {
                 usernameInput.style.borderColor = 'green';
                 usernameError.style.display = 'none';
+                document.cookie = "username="+username+";";
+                socket.emit('create_user', {username:username})
                 return true;
             } else {
                 usernameInput.style.borderColor = 'red';

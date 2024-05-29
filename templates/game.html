@@ -38,6 +38,13 @@
             width: 30px;
             height: 30px;
             background-color: white;
+            color:black;
+            border: 1px solid black;
+        }
+        .cellH-hit {
+            width: 30px;
+            height: 30px;
+            background-color: red;
             border: 1px solid black;
         }
         .row-label, .col-label {
@@ -65,11 +72,14 @@
             <div id="board"></div>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         var urlParams = new URLSearchParams(window.location.search);
         var username = urlParams.get('username');
         var room = urlParams.get('room');
         var size = urlParams.get('size');
+
 
         document.getElementById('game-info').innerText = 'Room: ' + room + ', Board Size: ' + size;
 
@@ -77,9 +87,9 @@
             var boardContainer = document.getElementById('board-container');
             var board = document.createElement('div');
             board.id = 'board';
-            var dimensions = size.split('x');
-            var rows = parseInt(dimensions[0]);
-            var cols = parseInt(dimensions[1]);
+
+            var rows = parseInt(size);
+            var cols = parseInt(size);
 
             board.style.gridTemplateRows = `repeat(${rows + 1}, 1fr)`; // +1 for row labels
             board.style.gridTemplateColumns = `repeat(${cols + 1}, 1fr)`; // +1 for column labels
@@ -106,6 +116,12 @@
                 for (var c = 0; c < cols; c++) {
                     var cell = document.createElement('div');
                     cell.className = 'cell';
+                    cell.id = c;
+                    cell.innerHTML = r;
+                    cell.onclick = function() {
+                        socket.emit('shoot', {'room': room, 'x':Math.floor(Math.random() * 10), 'y':Math.floor(Math.random() * 10)});
+                        cell.innerHTML = 'X';
+                    };
                     board.appendChild(cell);
                 }
             }
