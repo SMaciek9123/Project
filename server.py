@@ -13,6 +13,10 @@ boards = {}
 def index():
     return render_template('index.html')
 
+@app.route('/functions.js')
+def functions():
+    return render_template('functions.js')
+
 @app.route('/game-settings')
 def game_settings():
     username = request.args.get('username')

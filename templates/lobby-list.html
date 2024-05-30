@@ -4,6 +4,7 @@
     <title>Lobby List</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="functions.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -83,30 +84,13 @@
     </div>
     <script>
         var socket = io();
-        var urlParams = new URLSearchParams(window.location.search);
-        var username = urlParams.get('username');
-
-         function isLogged(){
-            socket.emit('getUsers');
-            socket.on("giveUsers", (users) => {
-            alert(users);
-            if(users.includes(document.cookie)) //zrobić oddzielenie ciasteczek document.cookie="username=nicktwój"
-            {
-                alert("działa, zrób teraz funkcje!(i dodaj zaprzeczenie: !users.includes(document.cookie))");
-            }
-            });
-
-            if(document.cookie==""){
-            window.location.href = '/';
-            }
-            }
+        var urlParams = new URLSearchParams(window.location.search); //useless or to change
+        var username = urlParams.get('username'); //useless or to change
 
          isLogged();
-
-
-            document.getElementById('room-input-container').style.display = 'block';
-            document.getElementById('lobby-title').innerText = 'Create a Room';
-            socket.emit('getLobbies');
+         document.getElementById('room-input-container').style.display = 'block';
+         document.getElementById('lobby-title').innerText = 'Create a Room';
+         socket.emit('getLobbies');
 
         socket.on('lobbies', function(lobbies) {
             var lobbyList = $('#lobby-list');
@@ -120,7 +104,7 @@
             var room = document.getElementById('room').value.trim();
             if (room) {
                 socket.emit('create', {'username': username, 'room': room});
-                window.location.href = '/game-settings?username=' + encodeURIComponent(username) + '&room=' + encodeURIComponent(room);
+                window.location.href = '/game-settings?username=' + encodeURIComponent(username) + '&room=' + encodeURIComponent(room); //useless or to change
             }
         }
 
@@ -129,8 +113,9 @@
         }
 
         socket.on('startGame', function(data) {
-            window.location.href = '/game?username=' + encodeURIComponent(username) + '&room=' + encodeURIComponent(room) + '&size=' + encodeURIComponent(size);
+            window.location.href = '/game?username=' + encodeURIComponent(username) + '&room=' + encodeURIComponent(room) + '&size=' + encodeURIComponent(size); //useless or to change
         });
+
     </script>
 </body>
 </html>
