@@ -5,9 +5,10 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
 socketio = SocketIO(app)
 
-users = [];
+users = []
 lobbies = {}
-boards = {}
+boards = {} # {"1": "([][], [][])"}
+
 
 @app.route('/')
 def index():
@@ -32,6 +33,7 @@ def waiting_room():
 
 @app.route('/lobby-list')
 def lobby_list():
+    print(users)
     username = request.args.get('username')
     return render_template('lobby-list.html', username=username)
 
@@ -50,9 +52,13 @@ def create_user(data):
     print(users)
 
 
-@socketio.on('getUsers')
-def give_users():
-    emit('giveUsers', users);
+@socketio.on('checkUsername')
+def give_users(username):
+    print("username"+username);
+    if username in users:
+        emit('checkUsername', True)
+    else:
+        emit('checkUsername', False)
 
 
 @socketio.on('create')
@@ -61,20 +67,27 @@ def on_create(data):
     room = data['room']
     lobbies[room] = {'host': username, 'size': None, 'players': [username]}
     join_room(room)
-    emit('message', {'msg': f'{username} has created the room {room}.'}, room=room)
 
 @socketio.on('selectBoardSize')
 def on_select_board_size(data):
     room = data['room']
     size = data['size']
-    print(size)
     if room in lobbies:
-        create_board(size, room)
-        lobbies[room]['size'] = size
+        board = create_board(size)
+        lobbies[room]['size'] = size #nwm po co to
+        boards[room]=(board, board)
+        print(boards[room][0])
         emit('waitingForPlayer', room=room)
 
-def create_board(size, room):
-    boards[room] = [['O' for _ in range(int(size))] for _ in range(int(size))]
+
+def create_board(size):
+    return [['O' for _ in range(int(size))] for _ in range(int(size))]
+
+
+@socketio.on('giveBoard')
+def on_give_board(room):
+    print("tu jestem")
+    emit('giveBoard', boards[room][0])
 
 
 @socketio.on('waitForPlayer')
@@ -100,7 +113,6 @@ def on_join(data):
         lobbies[room]['players'].append(username)
         join_room(room)
         size = lobbies[room]['size']
-        #emit('message', {'msg': f'{username} has entered the room.'}, room=room)
         emit('startGame', {'size': size}, room=room)
 
 @socketio.on('disconnect')
@@ -113,6 +125,9 @@ def on_disconnect():
             else:
                 emit('message', {'msg': 'A player has disconnected.'}, room=room)
             break
+
+
+
 
 @socketio.on('shoot')
 def on_shoot(data):

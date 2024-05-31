@@ -80,7 +80,8 @@
         var username = urlParams.get('username');
         var room = urlParams.get('room');
         var size = urlParams.get('size');
-
+        bb = getBoard(room);
+        alert(bb);
 
         document.getElementById('game-info').innerText = 'Room: ' + room + ', Board Size: ' + size;
 

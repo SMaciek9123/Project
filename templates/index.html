@@ -89,7 +89,7 @@
     </div>
     <script>
         var socket = io();
-        if(isLogged())
+        if(isLogged()==true)
         {
             window.location.href = '/lobby-list?username=' + encodeURIComponent(username);
         }

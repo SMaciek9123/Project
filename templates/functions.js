@@ -1,14 +1,16 @@
-function isLogged(){
-    var jprdl = compareCookie();
-    alert(jprdl);
-    if(jprdl == true)
+async function isLogged(){
+    if(document.cookie == "")
+    {
+        return false;
+    }
+    var result = await compareCookie();
+    if(result == true)
     {
         alert("zalogowano jako "+getCookie('username'));
         return true;
     }
     else
     {
-        //window.location.href = '/';
         alert("zaloguj się");
         return false;
     }
@@ -36,36 +38,30 @@ function getCookie(cname) {
   return "";
 }
 
-function compareCookie() {
+async function compareCookie() {
     var socket = io();
     username=getCookie('username');
-    socket.emit('getUsers');
-    var result =
-    socket.on("giveUsers", async function(users, callback) { //nie działam
-    if(users.includes(username))
-        {
-            alert('zawiera');
-            return true;
-        }
-    else
-        {
-           alert('nie zawiera');
-           return false;
-        }
-    });
+    alert(username);
+    //socket.emit('getUsers');
+    var result = await asyncEmit('checkUsername', username);
     alert(result);
     return result;
 }
 
-/* PROPOZYCJA CZATU
-async function checkUserInList(username) {
-    return new Promise((resolve, reject) => {
-        socket.emit('getUsers', null, function(users) {
-            if (users.includes(username)) {
-                resolve(true);
-            } else {
-                resolve(false);
-            }
-        });
+function asyncEmit(eventName, data) {
+  return new Promise(function (resolve, reject) {
+  alert("dzialam");
+  alert(eventName);
+    socket.emit(eventName, data);
+    socket.on(eventName, result => {
+      socket.off(eventName);
+      resolve(result);
     });
+    setTimeout(reject, 1000);
+  });
+}
+
+async function getBoard(room){
+    var board = await asyncEmit('giveBoard', room); //dodać który board ma zwrócic (room, player)
+    return board;
 }

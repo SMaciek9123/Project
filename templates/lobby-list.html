@@ -109,7 +109,8 @@
         }
 
         function joinLobby(room) {
-            socket.emit('join', {'username': username, 'room': room});
+            socket.emit('join', {'username': getCookie('username'), 'room': room});
+            window.location.href = '/game?' + '&room=' + encodeURIComponent(room);
         }
 
         socket.on('startGame', function(data) {
