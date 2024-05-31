@@ -48,7 +48,8 @@ async function compareCookie() {
     return result;
 }
 
-function asyncEmit(eventName, data) {
+async function asyncEmit(eventName, data) {
+  var socket = io();
   return new Promise(function (resolve, reject) {
   alert("dzialam");
   alert(eventName);
@@ -63,5 +64,6 @@ function asyncEmit(eventName, data) {
 
 async function getBoard(room){
     var board = await asyncEmit('giveBoard', room); //dodać który board ma zwrócic (room, player)
+    alert("getBoard alert: "+board);
     return board;
 }

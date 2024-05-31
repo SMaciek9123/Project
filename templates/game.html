@@ -76,12 +76,13 @@
         </div>
     </div>
     <script>
+        var socket = io();
         var urlParams = new URLSearchParams(window.location.search);
         var username = urlParams.get('username');
         var room = urlParams.get('room');
         var size = urlParams.get('size');
-        bb = getBoard(room);
-        alert(bb);
+
+        getBoard(room).then(alert);
 
         document.getElementById('game-info').innerText = 'Room: ' + room + ', Board Size: ' + size;
 
@@ -133,7 +134,6 @@
 
         createBoard(size);
 
-        var socket = io();
         socket.emit('joinRoom', {username: username, room: room, size: size});
 
         socket.on('startGame', function(data) {

@@ -86,7 +86,7 @@ def create_board(size):
 
 @socketio.on('giveBoard')
 def on_give_board(room):
-    print("tu jestem")
+    print(boards[room][0])
     emit('giveBoard', boards[room][0])
 
 
