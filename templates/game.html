@@ -145,7 +145,7 @@
             const gridItems = document.querySelectorAll('.cell')
 
             gridItems.forEach(item => item.addEventListener('click', () => {
-                console.log('a');
+                console.log('klik strzal');
              }));
         }
 
@@ -155,34 +155,32 @@
         });
 
 
-        createBoard(size);
 
         function strzal(data) {
             var target_x = data['x']
             var target_y = data['y']
             room =  data['room']
             username = data['username']
-            
-            alert(username+" "+room);
 
             getData(room, username).then(function(value) {
                 tura = value;
-                alert("Dane zwrócone przez getData: " + value);
-                alert("Strzelam w " + target_x + ", " + target_y);
+                console.log("Dane zwrócone przez getData: " + value);
+                console.log("Strzelam w " + target_x + ", " + target_y);
             }).catch(function(error) {
                 console.error("Wystąpił błąd podczas pobierania danych: ", error);
             });
 
             setTimeout(function() {
-                alert("twoja tura -> " + tura);
-            }, 1000);
-            if(tura){
+            if(tura==true){
+                console.log("twoja tura"+ tura)
                 console.log("twoja tura strzalasz");
                 socket.emit('shoot',data);
             }
             else{
-              console.log("nie twoja tura czekaj")
+                console.log("twoja tura"+ tura)
+                console.log("nie twoja tura czekaj")
             }
+        }, 1000);
         }
 
         function my_turn(data){
@@ -197,7 +195,7 @@
             }, 1000);
         }
 
-        socket.emit('joinRoom', {username: username, room: room, size: size});
+        socket.emit('joinRoom', {username: username, room: room});
 
         socket.on('startGame', function(data) {
             getBoard(room).then((value) => {createBoard(value);});

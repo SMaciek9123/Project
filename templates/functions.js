@@ -6,12 +6,13 @@ async function isLogged(){
   var result = await compareCookie();
   if(result == true)
   {
-      alert("zalogowano jako "+getCookie('username'));
+      console.log("zalogowano jako "+getCookie('username'));
+      //alert("zalogowano jako "+getCookie('username'));
       return true;
   }
   else
   {
-      alert("zaloguj się");
+      console.log("zaloguj się");
       return false;
   }
 }
@@ -51,8 +52,8 @@ async function compareCookie() {
 async function asyncEmit(eventName, data) {
 var socket = io();
 return new Promise(function (resolve, reject) {
-//alert("dzialam");
-  alert(eventName);
+  //alert("dzialam");
+  //alert(eventName);
   socket.emit(eventName, data);
   socket.on(eventName, result => {
     socket.off(eventName);
@@ -64,13 +65,13 @@ return new Promise(function (resolve, reject) {
 
 async function getBoard(room){
   var board = await asyncEmit('giveBoard', room); //dodać który board ma zwrócic (room, player)
-  alert("getBoard alert: "+board);
+  console.log("getBoard alert: "+board);
   return board;
 }
 
 async function getData(room,username){
   var data = await asyncEmit('giveData', {'room': room,'username': username}); //dodać który board ma zwrócic (room, player)
-  alert("getData alert: "+data);
+  console.log("getData alert: "+data);
   return data;
 }
 
