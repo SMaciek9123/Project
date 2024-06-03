@@ -195,6 +195,8 @@
         socket.on('End', function(data) {
             if(data['username']==getCookie('username')){
                 alert("wygrales!!")
+                socket.emit('on_disconnect',{})
+                window.location.href = '/win'
             }
             else{
                 alert("wygrałes")
@@ -203,6 +205,8 @@
         });
         socket.on('lose', function(data) {
             alert("przegrales")
+            socket.emit('on_disconnect',{})
+            window.location.href = '/lose'
         });
         socket.on('startGame', function(data) {
             getBoard(room).then((value) => {createBoard(value);});

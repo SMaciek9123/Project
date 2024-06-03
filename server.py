@@ -49,6 +49,13 @@ def game():
     size = request.args.get('size')
     return render_template('game.html', username=username, room=room, size=size)
 
+@app.route('/win')
+def congratulations():
+    return render_template('win.html')
+
+@app.route('/lose')
+def sorry():
+    return render_template('lose.html')
 
 @socketio.on('create_user')
 def create_user(data):
