@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, join_room, leave_room, emit
-
+import copy
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
 socketio = SocketIO(app)
@@ -91,10 +91,10 @@ def create_board(size):
 
 
 @socketio.on('giveBoard')
-def on_give_board(room):
-    host= lobbies[room]['host']
-    print(boards[room][host])
-    emit('giveBoard', boards[room][host])
+def on_give_board(data):
+    room = data['room']
+    username = data['username']
+    emit('giveBoard', boards[room][username])
 
 @socketio.on('giveData')
 def on_give_data(data):
@@ -129,7 +129,7 @@ def on_join(data):
         host = lobbies[room]['host']
         join_room(room)
         size = lobbies[room]['size']
-        boards[room][username]= boards[room][host]
+        boards[room][username]= copy.deepcopy(boards[room][host])
         game_data[room][username]= False
         print("\n")
         print(boards[room])
@@ -157,14 +157,18 @@ def on_shoot(data):
     x = (data['x'])
     y = (data['y'])
     players= lobbies[room]['players']
-    print(players)
-    print(x)
-    print(y)
-    boards[room][username][x][y]='1'
-    print(username)
-    print(boards[room][username])
+    print(boards[room])
+ 
+
     if(game_data[room][username]):
-        print("wykonano strzal")
+        temp=boards[room][username]
+        temp[x][y]='1'
+        print(boards[room][username])
+        print(temp)
+        print("wykonano strzal teraz zamiana tur")
+        print( game_data[room])
+        game_data[room][players[0]], game_data[room][players[1]]=game_data[room][players[1]], game_data[room][players[0]]
+        print( game_data[room])
     else:
         print("nie twoja tura")
 

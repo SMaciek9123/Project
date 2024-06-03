@@ -41,14 +41,11 @@
             width: 30px;
             height: 30px;
             background-color: white;
-            color:black;
+            color: black;
             border: 1px solid black;
         }
         .cellH-hit {
-            width: 30px;
-            height: 30px;
             background-color: red;
-            border: 1px solid black;
         }
         .row-label, .col-label {
             display: flex;
@@ -75,7 +72,6 @@
             <div id="board"></div>
         </div>
         <div>
-            <input type="text" id="target" placeholder="Podaj cel">
             <button onclick="strzal()">Strzelaj</button>
         </div>
     
@@ -86,7 +82,6 @@
         var username = urlParams.get('username');
         var room = urlParams.get('room');
         var tura=false;
-
 
 
         document.getElementById('game-info').innerText = 'Room: ' + room;
@@ -116,23 +111,28 @@
                 board.appendChild(colLabel);
             }
 
-            for (let r = 0; r < rows; r++) { // Changed var to let
+            for (let r = 0; r < rows; r++) {
                 // Add row label
                 var rowLabel = document.createElement('div');
                 rowLabel.className = 'row-label';
                 rowLabel.innerText = String.fromCharCode(65 + r);
                 board.appendChild(rowLabel);
 
-                for (let c = 0; c < cols; c++) { // Changed var to let
+                for (let c = 0; c < cols; c++) {
                     var cell = document.createElement('div');
                     cell.className = 'cell';
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
                     cell.addEventListener('click', function() {
-                        console.log(c + " " + r);
-                        strzal({'room': room, 'x': c, 'y': r,'username': getCookie('username')});
-                        socket.emit('shoot', {'room': room, 'x': c, 'y': r,'username': getCookie('username')});
+
+                        strzal({'room': room, 'x': c, 'y': r, 'username': getCookie('username')});
+                        //socket.emit('shoot', {'room': room, 'x': c, 'y': r, 'username': getCookie('username')});
+
+                       // setTimeout(function() {
+                         //   location.reload();
+                       // }, 1000); // Adjust the delay as needed
                     });
-                    if(gameBoard[c][r]==1)
-                    {
+                    if (gameBoard[c][r] == 1) {
                         cell.style.backgroundColor = 'black';
                     }
                     board.appendChild(cell);
@@ -140,17 +140,9 @@
             }
 
             boardContainer.appendChild(board);
-            Array.from(board).forEach((row, index) =>{console.log("e"); });
-
-            const gridItems = document.querySelectorAll('.cell')
-
-            gridItems.forEach(item => item.addEventListener('click', () => {
-                console.log('klik strzal');
-             }));
         }
 
-        getBoard(room).then((value) => {
-        alert("value "+value);
+        getBoard(room,getCookie('username')).then((value) => {
         createBoard(value);
         });
 
@@ -164,20 +156,18 @@
 
             getData(room, username).then(function(value) {
                 tura = value;
-                console.log("Dane zwrócone przez getData: " + value);
-                console.log("Strzelam w " + target_x + ", " + target_y);
+                console.log("wartosc tura z getdata: " + value);
+                console.log("Strzelam w " + target_x + "," + target_y);
             }).catch(function(error) {
                 console.error("Wystąpił błąd podczas pobierania danych: ", error);
             });
 
             setTimeout(function() {
             if(tura==true){
-                console.log("twoja tura"+ tura)
                 console.log("twoja tura strzalasz");
                 socket.emit('shoot',data);
             }
             else{
-                console.log("twoja tura"+ tura)
                 console.log("nie twoja tura czekaj")
             }
         }, 1000);
