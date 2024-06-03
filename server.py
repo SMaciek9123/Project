@@ -7,7 +7,11 @@ socketio = SocketIO(app)
 
 users = []
 lobbies = {}
-boards = {} # {"1": "([][], [][])"}
+game_data = {}# {'room' => {'user1'=> (gotowosc,tura),
+              #             'user2' =>(gotowosc,tura)}} 
+
+boards = {} # {'room' => {'user1'=> 'board',
+            #             'user2' =>'board2'}} 
 
 
 @app.route('/')
@@ -54,7 +58,7 @@ def create_user(data):
 
 @socketio.on('checkUsername')
 def give_users(username):
-    print("username"+username);
+    print("username "+username)
     if username in users:
         emit('checkUsername', True)
     else:
@@ -74,9 +78,11 @@ def on_select_board_size(data):
     size = data['size']
     if room in lobbies:
         board = create_board(size)
+        host = lobbies[room]['host']
         lobbies[room]['size'] = size #nwm po co to
-        boards[room]=(board, board)
-        print(boards[room][0])
+        game_data[room]= {host: (False,False)}
+        boards[room]={host: board}
+        print(boards[room][host])
         emit('waitingForPlayer', room=room)
 
 
@@ -86,8 +92,16 @@ def create_board(size):
 
 @socketio.on('giveBoard')
 def on_give_board(room):
-    print(boards[room][0])
-    emit('giveBoard', boards[room][0])
+    host= lobbies[room]['host']
+    print(boards[room][host])
+    emit('giveBoard', boards[room][host])
+
+@socketio.on('giveData')
+def on_give_data(data):
+    username = data['username']
+    room = data['room']
+    print(game_data[room][username])
+    emit('giveData',  game_data[room][username])
 
 
 @socketio.on('waitForPlayer')
@@ -111,8 +125,14 @@ def on_join(data):
     room = data['room']
     if room in lobbies and len(lobbies[room]['players']) == 1:
         lobbies[room]['players'].append(username)
+        host = lobbies[room]['host']
         join_room(room)
         size = lobbies[room]['size']
+        boards[room][username]= boards[room][host]
+        game_data[room][username]= (False,False)
+        print("\n")
+        print(boards[room])
+        print("\n")
         emit('startGame', {'size': size}, room=room)
 
 @socketio.on('disconnect')
@@ -137,12 +157,9 @@ def on_shoot(data):
     y = (data['y'])
     print(x)
     print(y)
-    boards[room][x][y]='1';
-    print(boards[room]);
+    boards[room][x][y]='1'
+    print(boards[room])
 
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=8002, debug=True)
-
-
-

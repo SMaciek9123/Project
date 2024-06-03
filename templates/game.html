@@ -74,6 +74,11 @@
         <div id="board-container">
             <div id="board"></div>
         </div>
+        <div>
+            <input type="text" id="target" placeholder="Podaj cel">
+            <button onclick="strzal()">Strzelaj</button>
+        </div>
+    
     </div>
     <script>
         var socket = io();
@@ -147,7 +152,19 @@
         createBoard(value);
         });
 
-        socket.emit('joinRoom', {username: username, room: room});
+
+        createBoard(size);
+        function strzal() {
+            var target = document.getElementById("target").value;
+            getData(room, username).then(function(value) {
+                alert("Dane zwrócone przez getData: " + value);
+                alert("Strzelam w " + target);
+            }).catch(function(error) {
+                console.error("Wystąpił błąd: ", error);
+            });
+        }
+
+        socket.emit('joinRoom', {username: username, room: room, size: size});
 
         socket.on('startGame', function(data) {
             getBoard(room).then((value) => {createBoard(value);});
