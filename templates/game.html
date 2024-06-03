@@ -128,9 +128,9 @@
                     {
                         strzal({'room': room, 'x': c, 'y': r, 'username': getCookie('username')});
                         //socket.emit('shoot', {'room': room, 'x': c, 'y': r, 'username': getCookie('username')});
-                        setTimeout(function() {
-                            location.reload();
-                        }, 1000); // Adjust the delay as needed
+                       // setTimeout(function() {
+                         //   location.reload();
+                       // }, 1000); // Adjust the delay as needed
                     }else
                     {alert("juz strzeliles tam")}
                     });
@@ -192,7 +192,18 @@
         }
 
         socket.emit('joinRoom', {username: username, room: room});
-
+        socket.on('End', function(data) {
+            if(data['username']==getCookie('username')){
+                alert("wygrales!!")
+            }
+            else{
+                alert("wygrałes")
+            }
+            
+        });
+        socket.on('lose', function(data) {
+            alert("przegrales")
+        });
         socket.on('startGame', function(data) {
             getBoard(room).then((value) => {createBoard(value);});
         });

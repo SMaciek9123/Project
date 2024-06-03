@@ -90,10 +90,10 @@ def on_select_board_size(data):
 
 def create_board(size):
     board = [[0 for _ in range(int(size))] for _ in range(int(size))]
-    for _ in range(4):  # Losujemy 4 pola
-        x = random.randint(0, int(size) - 1)
-        y = random.randint(0, int(size) - 1)
+    coordinates = random.sample([(x, y) for x in range(int(size)) for y in range(int(size))], 4)
+    for x, y in coordinates:
         board[x][y] = 2
+    
     return board
 
 
@@ -180,9 +180,12 @@ def on_shoot(data):
             win[room][players[0]]=-1
             win[room][players[1]]=-1
             win[room][username]=1
+            emit('End',{'username': username})
             print("wygrał")
             print(username)
             print(win[room])
+        if(win[room][username]==-1):
+            emit('lose',{})
         print("wykonano strzal teraz zamiana tur")
         print( game_data[room])
         game_data[room][players[0]], game_data[room][players[1]]=game_data[room][players[1]], game_data[room][players[0]]
