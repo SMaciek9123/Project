@@ -52,7 +52,7 @@ async function asyncEmit(eventName, data) {
 var socket = io();
 return new Promise(function (resolve, reject) {
 //alert("dzialam");
-//alert(eventName);
+  alert(eventName);
   socket.emit(eventName, data);
   socket.on(eventName, result => {
     socket.off(eventName);

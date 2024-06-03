@@ -7,8 +7,8 @@ socketio = SocketIO(app)
 
 users = []
 lobbies = {}
-game_data = {}# {'room' => {'user1'=> (gotowosc,tura),
-              #             'user2' =>(gotowosc,tura)}} 
+game_data = {}# {'room' => {'user1'=> tura,
+              #             'user2' =>,tura}} 
 
 boards = {} # {'room' => {'user1'=> 'board',
             #             'user2' =>'board2'}} 
@@ -80,7 +80,7 @@ def on_select_board_size(data):
         board = create_board(size)
         host = lobbies[room]['host']
         lobbies[room]['size'] = size #nwm po co to
-        game_data[room]= {host: (False,False)}
+        game_data[room]= {host: True}
         boards[room]={host: board}
         print(boards[room][host])
         emit('waitingForPlayer', room=room)
@@ -100,7 +100,8 @@ def on_give_board(room):
 def on_give_data(data):
     username = data['username']
     room = data['room']
-    print(game_data[room][username])
+    print("wartosc ") 
+    print( game_data[room][username])
     emit('giveData',  game_data[room][username])
 
 
@@ -116,7 +117,7 @@ def on_wait_for_player(data):
 
 @socketio.on('getLobbies')
 def on_get_lobbies():
-    available_lobbies = [room for room in lobbies if len(lobbies[room]['players']) == 1 and lobbies[room]['size']]
+    available_lobbies = [room for room in lobbies if len(lobbies[room]['players']) == 1]
     emit('lobbies', available_lobbies)
 
 @socketio.on('join')
@@ -129,7 +130,7 @@ def on_join(data):
         join_room(room)
         size = lobbies[room]['size']
         boards[room][username]= boards[room][host]
-        game_data[room][username]= (False,False)
+        game_data[room][username]= False
         print("\n")
         print(boards[room])
         print("\n")
@@ -152,13 +153,20 @@ def on_disconnect():
 @socketio.on('shoot')
 def on_shoot(data):
     room = data['room']
-
+    username = data['username']
     x = (data['x'])
     y = (data['y'])
+    players= lobbies[room]['players']
+    print(players)
     print(x)
     print(y)
-    boards[room][x][y]='1'
-    print(boards[room])
+    boards[room][username][x][y]='1'
+    print(username)
+    print(boards[room][username])
+    if(game_data[room][username]):
+        print("wykonano strzal")
+    else:
+        print("nie twoja tura")
 
 
 if __name__ == '__main__':
