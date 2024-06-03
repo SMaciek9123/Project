@@ -89,12 +89,12 @@
     </div>
     <script>
         var socket = io();
-        isLogged().then(alert);
-        if(isLogged()==true)
+        isLogged().then((value) =>{
+        if(value==true)
         {
             alert("index if isLogged True");
             window.location.href = '/lobby-list?username=' + encodeURIComponent(username);
-        }
+        }});
 
         function validateUsername() {
             var username = document.getElementById('username').value.trim();

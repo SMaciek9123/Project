@@ -65,7 +65,7 @@ def give_users(username):
 def on_create(data):
     username = data['username']
     room = data['room']
-    lobbies[room] = {'host': username, 'size': None, 'players': [username]}
+    lobbies[room] = {'host': username, 'players': [username]} #useless
     join_room(room)
 
 @socketio.on('selectBoardSize')

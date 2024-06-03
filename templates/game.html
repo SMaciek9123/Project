@@ -80,19 +80,20 @@
         var urlParams = new URLSearchParams(window.location.search);
         var username = urlParams.get('username');
         var room = urlParams.get('room');
-        var size = urlParams.get('size');
 
-        getBoard(room).then(alert);
 
-        document.getElementById('game-info').innerText = 'Room: ' + room + ', Board Size: ' + size;
 
-        function createBoard(size) {
+        document.getElementById('game-info').innerText = 'Room: ' + room;
+
+        function createBoard(gameBoard) {
             var boardContainer = document.getElementById('board-container');
             var board = document.createElement('div');
             board.id = 'board';
 
-            var rows = parseInt(size);
-            var cols = parseInt(size);
+            var dimensions = [gameBoard.length, gameBoard[0].length];
+
+            var rows = dimensions[0];
+            var cols = dimensions[1];
 
             board.style.gridTemplateRows = `repeat(${rows + 1}, 1fr)`; // +1 for row labels
             board.style.gridTemplateColumns = `repeat(${cols + 1}, 1fr)`; // +1 for column labels
@@ -102,42 +103,54 @@
             emptyCorner.className = 'col-label';
             board.appendChild(emptyCorner);
 
-            for (var c = 1; c <= cols; c++) {
+            for (var c = 0; c < cols; c++) {
                 var colLabel = document.createElement('div');
                 colLabel.className = 'col-label';
                 colLabel.innerText = c;
                 board.appendChild(colLabel);
             }
 
-            for (var r = 0; r < rows; r++) {
+            for (let r = 0; r < rows; r++) { // Changed var to let
                 // Add row label
                 var rowLabel = document.createElement('div');
                 rowLabel.className = 'row-label';
                 rowLabel.innerText = String.fromCharCode(65 + r);
                 board.appendChild(rowLabel);
 
-                for (var c = 0; c < cols; c++) {
+                for (let c = 0; c < cols; c++) { // Changed var to let
                     var cell = document.createElement('div');
                     cell.className = 'cell';
-                    cell.id = c;
-                    cell.innerHTML = r;
-                    cell.onclick = function() {
-                        socket.emit('shoot', {'room': room, 'x':Math.floor(Math.random() * 10), 'y':Math.floor(Math.random() * 10)});
-                        cell.innerHTML = 'X';
-                    };
+                    cell.addEventListener('click', function() {
+                        console.log(c + " " + r);
+                        socket.emit('shoot', {'room': room, 'x': c, 'y': r});
+                    });
+                    if(gameBoard[c][r]==1)
+                    {
+                        cell.style.backgroundColor = 'black';
+                    }
                     board.appendChild(cell);
                 }
             }
 
             boardContainer.appendChild(board);
+            Array.from(board).forEach((row, index) =>{console.log("e"); });
+
+            const gridItems = document.querySelectorAll('.cell')
+
+            gridItems.forEach(item => item.addEventListener('click', () => {
+                console.log('a');
+             }));
         }
 
-        createBoard(size);
+        getBoard(room).then((value) => {
+        alert("value "+value);
+        createBoard(value);
+        });
 
-        socket.emit('joinRoom', {username: username, room: room, size: size});
+        socket.emit('joinRoom', {username: username, room: room});
 
         socket.on('startGame', function(data) {
-            createBoard(data.size);
+            getBoard(room).then((value) => {createBoard(value);});
         });
     </script>
 </body>
