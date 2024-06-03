@@ -166,11 +166,35 @@
             alert(username+" "+room);
 
             getData(room, username).then(function(value) {
-                 tura = value;
+                tura = value;
                 alert("Dane zwrócone przez getData: " + value);
-                alert("Strzelam w " + target_x + target_y);
+                alert("Strzelam w " + target_x + ", " + target_y);
+            }).catch(function(error) {
+                console.error("Wystąpił błąd podczas pobierania danych: ", error);
             });
-            alert("twoja tura -> " + tura);
+
+            setTimeout(function() {
+                alert("twoja tura -> " + tura);
+            }, 1000);
+            if(tura){
+                console.log("twoja tura strzalasz");
+                socket.emit('shoot',data);
+            }
+            else{
+              console.log("nie twoja tura czekaj")
+            }
+        }
+
+        function my_turn(data){
+            room =  data['room']
+            username = data['username']
+            getData(room, username).then(function(value) {
+                tura = value;
+            }).catch(function(error) {
+                console.error("Wystąpił błąd podczas pobierania danych: ", error);
+            });
+            setTimeout(function() {
+            }, 1000);
         }
 
         socket.emit('joinRoom', {username: username, room: room, size: size});
