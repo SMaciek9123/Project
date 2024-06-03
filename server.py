@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, join_room, leave_room, emit
 import copy
+import random
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
 socketio = SocketIO(app)
@@ -9,7 +10,7 @@ users = []
 lobbies = {}
 game_data = {}# {'room' => {'user1'=> tura,
               #             'user2' =>,tura}} 
-
+win = {}
 boards = {} # {'room' => {'user1'=> 'board',
             #             'user2' =>'board2'}} 
 
@@ -80,6 +81,7 @@ def on_select_board_size(data):
         board = create_board(size)
         host = lobbies[room]['host']
         lobbies[room]['size'] = size #nwm po co to
+        win[room]= {host: 0}
         game_data[room]= {host: True}
         boards[room]={host: board}
         print(boards[room][host])
@@ -87,7 +89,12 @@ def on_select_board_size(data):
 
 
 def create_board(size):
-    return [['O' for _ in range(int(size))] for _ in range(int(size))]
+    board = [[0 for _ in range(int(size))] for _ in range(int(size))]
+    for _ in range(4):  # Losujemy 4 pola
+        x = random.randint(0, int(size) - 1)
+        y = random.randint(0, int(size) - 1)
+        board[x][y] = 2
+    return board
 
 
 @socketio.on('giveBoard')
@@ -131,6 +138,7 @@ def on_join(data):
         size = lobbies[room]['size']
         boards[room][username]= copy.deepcopy(boards[room][host])
         game_data[room][username]= False
+        win[room][username]= 0
         print("\n")
         print(boards[room])
         print("\n")
@@ -162,9 +170,19 @@ def on_shoot(data):
 
     if(game_data[room][username]):
         temp=boards[room][username]
-        temp[x][y]='1'
+        temp[x][y]=temp[x][y]+1
         print(boards[room][username])
         print(temp)
+        liczba_trafien = sum(1 for w in temp for e in w if e == 3)
+        print("liczba trafien= ")
+        print(liczba_trafien)
+        if(liczba_trafien==4):
+            win[room][players[0]]=-1
+            win[room][players[1]]=-1
+            win[room][username]=1
+            print("wygrał")
+            print(username)
+            print(win[room])
         print("wykonano strzal teraz zamiana tur")
         print( game_data[room])
         game_data[room][players[0]], game_data[room][players[1]]=game_data[room][players[1]], game_data[room][players[0]]

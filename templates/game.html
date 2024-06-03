@@ -124,16 +124,22 @@
                     cell.dataset.row = r;
                     cell.dataset.col = c;
                     cell.addEventListener('click', function() {
-
+                    if(gameBoard[c][r] == 0||gameBoard[c][r] == 2 )
+                    {
                         strzal({'room': room, 'x': c, 'y': r, 'username': getCookie('username')});
                         //socket.emit('shoot', {'room': room, 'x': c, 'y': r, 'username': getCookie('username')});
-
                         setTimeout(function() {
                             location.reload();
                         }, 1000); // Adjust the delay as needed
+                    }else
+                    {alert("juz strzeliles tam")}
                     });
+                    
                     if (gameBoard[c][r] == 1) {
                         cell.style.backgroundColor = 'black';
+                    }
+                    if (gameBoard[c][r] == 3) {
+                        cell.style.backgroundColor = 'red';
                     }
                     board.appendChild(cell);
                 }
