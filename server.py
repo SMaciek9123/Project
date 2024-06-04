@@ -95,10 +95,10 @@ def create_board(size):
 
 
 @socketio.on('giveBoard')
-def on_give_board(room):
-    host= lobbies[room]['host']
-    print(boards[room][host])
-    emit('giveBoard', boards[room][host])
+def on_give_board(data):
+    room = data['room']
+    username = data['username']
+    emit('giveBoard', boards[room][username])
 
 @socketio.on('giveData')
 def on_give_data(data):

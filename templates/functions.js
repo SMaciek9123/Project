@@ -62,9 +62,9 @@ return new Promise(function (resolve, reject) {
 });
 }
 
-async function getBoard(room){
-  var board = await asyncEmit('giveBoard', room); //dodać który board ma zwrócic (room, player)
-  alert("getBoard alert: "+board);
+async function getBoard(room,username){
+  var board = await asyncEmit('giveBoard', {'room': room, 'username': username}); //dodać który board ma zwrócic (room, player)
+  console.log("tablica dla: "+username+" wynik "+board);
   return board;
 }
 
@@ -72,19 +72,4 @@ async function getData(room,username){
   var data = await asyncEmit('giveData', {'room': room,'username': username}); //dodać który board ma zwrócic (room, player)
   alert("getData alert: "+data);
   return data;
-}
-
-async function shoot_game(){
-  var data = await asyncEmit('getData',room); //update data
-  if(game_not_over) // jezeli gra dalej jest
-    {
-        if(player_turn=id_player)// jezeli gracz ma swoja ture
-          {
-            var new_data = await asyncEmit('shoot',room);
-          }
-          else//jak nie to poczekaj na nia
-          {
-            wait_for_turn();
-          }
-    }
 }
