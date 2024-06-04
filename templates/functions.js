@@ -79,29 +79,15 @@ function logBoard(board){
 }
 
 async function getData(room,username){
-  var data = await asyncEmit('giveData', {'room': room,'username': username}); //dodać który board ma zwrócic (room, player)
+  var data = await asyncEmit('giveData', {'room': room,'username': username});
   console.log("getData wynik: "+data);
   return data;
 }
 
 async function getEnemyBoard(room,username){
-  var playersTable = await asyncEmit('givePlayersTable', {'room': room});
-  let enemy = "";
-  if(username == playersTable[0])
-  {
-    enemy = playersTable[1]
-  }
-  else if(username == playersTable[1])
-  {
-    enemy = playersTable[0];
-  }
-  else
-  {
-    console.error("Nie znaleziono gracza");
-    console.log("Nie znaleziono gracza");
-    return "dummy";
-  }
-  var board = await getBoard(room, enemy);
+  var board = await asyncEmit('giveEnemyBoard', {'room':room, 'username':username}); //dodać który board ma zwrócic (room, player)
+  console.log("tablica dla: "+username+" wynik ");
+  logBoard(board);
   return board;
 }
 

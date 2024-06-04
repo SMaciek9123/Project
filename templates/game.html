@@ -214,10 +214,10 @@
 
         function refreshBoards()
         {
-        getBoard(room,getCookie('username')).then((value) => {
+        getBoard(room,username).then((value) => {
         createBoard(value);
         });
-        getEnemyBoard(room,getCookie('username')).then((value) => {
+        getEnemyBoard(room,username).then((value) => {
         createBoardEnemy(value);
         });
         }

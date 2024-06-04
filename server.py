@@ -110,6 +110,17 @@ def on_give_board(data):
     username = data['username']
     emit('giveBoard', boards[room][username])
 
+@socketio.on('giveEnemyBoard')
+def give_enemy_board(data):
+    room=data['room']
+    username=data['username']
+    if lobbies[room]['players'][0] == username:
+        emit('giveEnemyBoard', boards[room][lobbies[room]['players'][1]])
+    elif lobbies[room]['players'][1] == username:
+        emit('giveEnemyBoard', boards[room][lobbies[room]['players'][0]])
+    else:
+        print("Błąd pobrania tablicy przeciwnika");
+
 @socketio.on('giveData')
 def on_give_data(data):
     username = data['username']
@@ -181,7 +192,7 @@ def on_shoot(data):
  
 
     if(game_data[room][username]):
-        temp=boards[room][username]
+        temp=boards[room][get_enemy_username(room,username)]
         temp[x][y]=temp[x][y]+1
         print(boards[room][username])
         print(temp)
@@ -206,6 +217,14 @@ def on_shoot(data):
         print("nie twoja tura")
     emit('shootsFired', {}, broadcast=True)
 
+
+def get_enemy_username(room, username):
+    if lobbies[room]['players'][0] == username:
+        return lobbies[room]['players'][1]
+    elif lobbies[room]['players'][1] == username:
+        return lobbies[room]['players'][0]
+    else:
+        print("Błąd pobrania nazwy przeciwnika");
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=8002, debug=True)
