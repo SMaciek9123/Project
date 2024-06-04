@@ -22,6 +22,10 @@ def index():
 def functions():
     return render_template('functions.js')
 
+@app.route('/ship')
+def ship():
+    return render_template('put-ships.html')
+
 @app.route('/game-settings')
 def game_settings():
     username = request.args.get('username')
@@ -147,7 +151,38 @@ def on_disconnect():
             break
 
 
+@socketio.on('clear')
+def on_clear(data):
+    room = data['room']
+    username = data['username']
+    size =  len(boards[room][username]) 
+    boards[room][username] = [[0 for _ in range(int(size))] for _ in range(int(size))]
 
+@socketio.on('put_ship')
+def on_put_ship(data):
+    
+    room = data['room']
+    username = data['username']
+    x = data['x']
+    y = data['y'] 
+    ship_lenght = data['ship_lenght']  
+    ship_high = data['ship_high']
+    
+    if(room in boards):
+        if(username in boards[room]):
+            if(ship_lenght>1):
+                for i in range(ship_lenght):
+                    if(x!=-1):
+                        boards[room][username][x+i][y]=1
+            else:
+                for i in range(ship_high):
+                    if(x!=-1):
+                        boards[room][username][x][y+i]=1
+        else:
+            boards[room][username]=[[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]]
+    else:
+        boards[room]={username: [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]]}
+    print(boards[room][username])
 
 @socketio.on('shoot')
 def on_shoot(data):
