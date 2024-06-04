@@ -37,6 +37,11 @@
             gap: 1px;
             margin-top: 20px;
         }
+        #board-enemy {
+            display: grid;
+            gap: 1px;
+            margin-top: 20px;
+        }
         .cell {
             width: 30px;
             height: 30px;
@@ -71,10 +76,15 @@
         <div id="board-container">
             <div id="board"></div>
         </div>
+        <div id="board-container-enemy">
+            <div id="board-enemy"></div>
+        </div>
+        </div>
+        <div>
         <div>
             <button id="shootButton">Strzelaj</button>
         </div>
-    
+
     </div>
     <script>
         var socket = io();
@@ -85,14 +95,63 @@
         let selX=0;
         let selY=0;
         document.getElementById('shootButton').addEventListener('click', strzal);
-
-
         document.getElementById('game-info').innerText = 'Room: ' + room;
 
         function createBoard(gameBoard) {
             var boardContainer = document.getElementById('board-container');
+            boardContainer.replaceChildren();
             var board = document.createElement('div');
             board.id = 'board';
+
+            var dimensions = [gameBoard.length, gameBoard[0].length];
+
+            var rows = dimensions[0];
+            var cols = dimensions[1];
+
+            board.style.gridTemplateRows = `repeat(${rows + 1}, 1fr)`; // +1 for row labels
+            board.style.gridTemplateColumns = `repeat(${cols + 1}, 1fr)`; // +1 for column labels
+
+            // Add column labels
+            var emptyCorner = document.createElement('div');
+            emptyCorner.className = 'col-label';
+            board.appendChild(emptyCorner);
+
+            for (var c = 0; c < cols; c++) {
+                var colLabel = document.createElement('div');
+                colLabel.className = 'col-label';
+                colLabel.innerText = c;
+                board.appendChild(colLabel);
+            }
+
+            for (let r = 0; r < rows; r++) {
+                // Add row label
+                var rowLabel = document.createElement('div');
+                rowLabel.className = 'row-label';
+                rowLabel.innerText = String.fromCharCode(65 + r);
+                board.appendChild(rowLabel);
+
+                for (let c = 0; c < cols; c++) {
+                    var cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    if (gameBoard[c][r] == 1) {
+                        cell.style.backgroundColor = 'black';
+                    }
+                    if (gameBoard[c][r] == 3) {
+                        cell.style.backgroundColor = 'red';
+                    }
+                    board.appendChild(cell);
+                }
+            }
+            boardContainer.appendChild(board);
+        }
+
+        function createBoardEnemy(gameBoard) {
+            var boardContainer = document.getElementById('board-container-enemy');
+            boardContainer.replaceChildren();
+            var board = document.createElement('div');
+            board.id = 'board-enemy';
 
             var dimensions = [gameBoard.length, gameBoard[0].length];
 
@@ -131,19 +190,15 @@
                         cell.style.backgroundColor = "yellow";
                     }
                     cell.addEventListener('click', function() {
-                    if(gameBoard[c][r] == 0||gameBoard[c][r] == 2 )
-                    {
                         selX=c;
                         selY=r;
-                        //strzal({'room': room, 'x': c, 'y': r, 'username': getCookie('username')});
-                        //socket.emit('shoot', {'room': room, 'x': c, 'y': r, 'username': getCookie('username')});
+                        refreshBoards();
                        // setTimeout(function() {
                          //   location.reload();
                        // }, 1000); // Adjust the delay as needed
-                    }else
-                    {alert("juz strzeliles tam")}
+
                     });
-                    
+
                     if (gameBoard[c][r] == 1) {
                         cell.style.backgroundColor = 'black';
                     }
@@ -157,15 +212,22 @@
             boardContainer.appendChild(board);
         }
 
+        function refreshBoards()
+        {
         getBoard(room,getCookie('username')).then((value) => {
         createBoard(value);
         });
-
-
+        getEnemyBoard(room,getCookie('username')).then((value) => {
+        createBoardEnemy(value);
+        });
+        }
+        socket.on('shootsFired', (result) => {
+            alert("odbiór");
+            refreshBoards();
+        });
 
         function strzal() {
             data={'username':username, 'room':room, 'x':selX, 'y':selY};
-            alert("qweqeqwwqe"+data['x']);
             var target_x = data['x']
             var target_y = data['y']
             room =  data['room']
@@ -178,7 +240,7 @@
             }).catch(function(error) {
                 console.error("Wystąpił błąd podczas pobierania danych: ", error);
             });
-
+            refreshBoards();
             setTimeout(function() {
             if(tura==true){
                 console.log("twoja tura strzalasz");
@@ -188,6 +250,7 @@
                 console.log("nie twoja tura czekaj")
             }
         }, 1000);
+
         }
 
         function my_turn(data){
@@ -212,7 +275,7 @@
             else{
                 alert("wygrałes")
             }
-            
+
         });
         socket.on('lose', function(data) {
             alert("przegrales")

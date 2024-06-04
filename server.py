@@ -118,6 +118,11 @@ def on_give_data(data):
     print( game_data[room][username])
     emit('giveData',  game_data[room][username])
 
+@socketio.on('givePlayersTable')
+def on_give_players_table(data):
+    room = data['room'];
+    emit('givePlayersTable', lobbies[room]['players'])
+
 
 @socketio.on('waitForPlayer')
 def on_wait_for_player(data):
@@ -199,6 +204,7 @@ def on_shoot(data):
         print( game_data[room])
     else:
         print("nie twoja tura")
+    emit('shootsFired', {}, broadcast=True)
 
 
 if __name__ == '__main__':
