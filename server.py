@@ -1,17 +1,27 @@
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, join_room, leave_room, emit
-
+import copy
+import random
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
 socketio = SocketIO(app)
 
-users = [];
+users = []
 lobbies = {}
-boards = {}
+game_data = {}# {'room' => {'user1'=> tura,
+              #             'user2' =>,tura}} 
+win = {}
+boards = {} # {'room' => {'user1'=> 'board',
+            #             'user2' =>'board2'}} 
+
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/functions.js')
+def functions():
+    return render_template('functions.js')
 
 @app.route('/game-settings')
 def game_settings():
@@ -28,6 +38,7 @@ def waiting_room():
 
 @app.route('/lobby-list')
 def lobby_list():
+    print(users)
     username = request.args.get('username')
     return render_template('lobby-list.html', username=username)
 
@@ -38,6 +49,13 @@ def game():
     size = request.args.get('size')
     return render_template('game.html', username=username, room=room, size=size)
 
+@app.route('/win')
+def congratulations():
+    return render_template('win.html')
+
+@app.route('/lose')
+def sorry():
+    return render_template('lose.html')
 
 @socketio.on('create_user')
 def create_user(data):
@@ -46,31 +64,81 @@ def create_user(data):
     print(users)
 
 
-@socketio.on('getUsers')
-def give_users():
-    emit('giveUsers', users);
+@socketio.on('checkUsername')
+def give_users(username):
+    print("username "+username)
+    if username in users:
+        emit('checkUsername', True)
+    else:
+        emit('checkUsername', False)
 
 
 @socketio.on('create')
 def on_create(data):
     username = data['username']
     room = data['room']
-    lobbies[room] = {'host': username, 'size': None, 'players': [username]}
+    lobbies[room] = {'host': username, 'players': [username]} #useless
     join_room(room)
-    emit('message', {'msg': f'{username} has created the room {room}.'}, room=room)
 
 @socketio.on('selectBoardSize')
 def on_select_board_size(data):
     room = data['room']
     size = data['size']
-    print(size)
     if room in lobbies:
-        create_board(size, room)
-        lobbies[room]['size'] = size
+        board = create_board(size)
+        host = lobbies[room]['host']
+        lobbies[room]['size'] = size #nwm po co to
+        win[room]= {host: 0}
+        game_data[room]= {host: True}
+        boards[room]={host: board}
+        print(boards[room][host])
         emit('waitingForPlayer', room=room)
 
-def create_board(size, room):
-    boards[room] = [['O' for _ in range(int(size))] for _ in range(int(size))]
+
+def create_board(size):
+    board = [[0 for _ in range(int(size))] for _ in range(int(size))]
+    coordinates = random.sample([(x, y) for x in range(int(size)) for y in range(int(size))], 4)
+    for x, y in coordinates:
+        board[x][y] = 2
+    
+    return board
+
+
+@socketio.on('giveBoard')
+def on_give_board(data):
+    room = data['room']
+    username = data['username']
+    emit('giveBoard', boards[room][username])
+
+@socketio.on('giveEnemyBoard')
+def give_enemy_board(data):
+    room=data['room']
+    username=data['username']
+    if lobbies[room]['players'][0] == username:
+        emit('giveEnemyBoard', boards[room][lobbies[room]['players'][1]])
+    elif lobbies[room]['players'][1] == username:
+        emit('giveEnemyBoard', boards[room][lobbies[room]['players'][0]])
+    else:
+        print("Błąd pobrania tablicy przeciwnika");
+
+@socketio.on('giveEnemyName')
+def give_enemy_name(data):
+    room=data['room']
+    username=data['username']
+    emit('giveEnemyName', get_enemy_username(room, username))
+
+@socketio.on('giveData')
+def on_give_data(data):
+    username = data['username']
+    room = data['room']
+    print("wartosc ") 
+    print( game_data[room][username])
+    emit('giveData',  game_data[room][username])
+
+@socketio.on('givePlayersTable')
+def on_give_players_table(data):
+    room = data['room'];
+    emit('givePlayersTable', lobbies[room]['players'])
 
 
 @socketio.on('waitForPlayer')
@@ -85,7 +153,7 @@ def on_wait_for_player(data):
 
 @socketio.on('getLobbies')
 def on_get_lobbies():
-    available_lobbies = [room for room in lobbies if len(lobbies[room]['players']) == 1 and lobbies[room]['size']]
+    available_lobbies = [room for room in lobbies if len(lobbies[room]['players']) == 1]
     emit('lobbies', available_lobbies)
 
 @socketio.on('join')
@@ -94,9 +162,15 @@ def on_join(data):
     room = data['room']
     if room in lobbies and len(lobbies[room]['players']) == 1:
         lobbies[room]['players'].append(username)
+        host = lobbies[room]['host']
         join_room(room)
         size = lobbies[room]['size']
-        #emit('message', {'msg': f'{username} has entered the room.'}, room=room)
+        boards[room][username]= copy.deepcopy(boards[room][host])
+        game_data[room][username]= False
+        win[room][username]= 0
+        print("\n")
+        print(boards[room])
+        print("\n")
         emit('startGame', {'size': size}, room=room)
 
 @socketio.on('disconnect')
@@ -110,20 +184,53 @@ def on_disconnect():
                 emit('message', {'msg': 'A player has disconnected.'}, room=room)
             break
 
+
+
+
 @socketio.on('shoot')
 def on_shoot(data):
     room = data['room']
-
+    username = data['username']
     x = (data['x'])
     y = (data['y'])
-    print(x)
-    print(y)
-    boards[room][x][y]='1';
-    print(boards[room]);
+    players= lobbies[room]['players']
+    print(boards[room])
+ 
 
+    if(game_data[room][username]):
+        temp=boards[room][username]
+        temp[x][y]=temp[x][y]+1
+        print(boards[room][username])
+        print(temp)
+        liczba_trafien = sum(1 for w in temp for e in w if e == 3)
+        print("liczba trafien= ")
+        print(liczba_trafien)
+        if(liczba_trafien==4):
+            win[room][players[0]]=-1
+            win[room][players[1]]=-1
+            win[room][username]=1
+            emit('End',{'username': username})
+            print("wygrał")
+            print(username)
+            print(win[room])
+        if(win[room][username]==-1):
+            emit('lose',{})
+        print("wykonano strzal teraz zamiana tur")
+        print( game_data[room])
+        game_data[room][players[0]], game_data[room][players[1]]=game_data[room][players[1]], game_data[room][players[0]]
+        print( game_data[room])
+    else:
+        print("nie twoja tura")
+    emit('shootsFired', {}, broadcast=True)
+
+
+def get_enemy_username(room, username):
+    if lobbies[room]['players'][0] == username:
+        return lobbies[room]['players'][1]
+    elif lobbies[room]['players'][1] == username:
+        return lobbies[room]['players'][0]
+    else:
+        print("Błąd pobrania nazwy przeciwnika");
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=8002, debug=True)
-
-
-
