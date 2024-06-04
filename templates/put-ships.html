@@ -1,0 +1,249 @@
+<!doctype html>
+<html>
+<head>
+    <title>ships</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="functions.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<style>
+    .left-column {
+        flex: 70%;
+    }
+    .right-column {
+        flex: 30%;
+        margin-top: 35px;
+        margin-left: 35px;
+    }
+    .row {
+    display: flex;
+    }   
+    #sidebar {
+        width: 33.333%;
+        background-color: #f4f4f4;
+        padding: 20px;
+    }
+</style>
+<body>
+    <div class="container">
+        <h1>ułóz statki</h1>
+
+        <div id="game-info"></div>
+        <div class="row">
+        <div class="left-column">
+            <div id="board-container">
+                <div id="board"></div>
+            </div>
+        </div>
+        <div class="right-column">
+            <div id="ship-container">
+                <div id="ship"></div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <button id="startButton">start</button>
+    </div>
+    <div>
+        <button id="resetButton">reset</button>
+    </div>
+    
+    </div>
+    <script>
+        var socket = io();
+        var urlParams = new URLSearchParams(window.location.search);
+        var username = getCookie('username');
+        var room = urlParams.get('room');
+        let wybrany = null;
+
+
+        //document.getElementById('shootButton').addEventListener('click', strzal);
+        document.getElementById('startButton').addEventListener('click', start);
+        document.getElementById('resetButton').addEventListener('click', clear);
+
+        function create_ship_board(len, width) {
+            var shipContainer = document.getElementById('ship-container');
+            var boardWrapper = document.createElement('div');
+            boardWrapper.className = 'board-wrapper';
+
+            var ship = document.createElement('div');
+            ship.id = 'ship';
+            ship.style.display = 'grid';
+            ship.style.gridTemplateRows = `repeat(${width}, 1fr)`;
+            ship.style.gridTemplateColumns = `repeat(${len}, 1fr)`;
+
+            for (let r = 0; r < width; r++) {
+                for (let c = 0; c < len; c++) {
+                    var cell = document.createElement('div');
+                    cell.className = 'cell_ship';
+                    if (r === 0 && c === 0) {
+                        cell.style.backgroundColor = "red";
+                        cell.addEventListener('click', function() {
+                            alert("wybrales statek "+len+"-"+width);
+                            wybrany=[len,width];
+                            console.log(wybrany)
+                        });
+                    }
+                        ship.appendChild(cell);
+                }
+            }
+
+            boardWrapper.appendChild(ship);
+            shipContainer.appendChild(boardWrapper);
+        }
+        function createBoard(gameBoard) {
+            var plansza = gameBoard;
+            var boardContainer = document.getElementById('board-container');
+            var board = document.createElement('div');
+            board.id = 'board';
+
+            var dimensions = [gameBoard.length, gameBoard[0].length];
+
+            var rows = dimensions[0];
+            var cols = dimensions[1];
+
+            board.style.gridTemplateRows = `repeat(${rows + 1}, 1fr)`; // +1 for row labels
+            board.style.gridTemplateColumns = `repeat(${cols + 1}, 1fr)`; // +1 for column labels
+
+            // Add column labels
+            var emptyCorner = document.createElement('div');
+            emptyCorner.className = 'col-label';
+            board.appendChild(emptyCorner);
+
+            for (var c = 0; c < cols; c++) {
+                var colLabel = document.createElement('div');
+                colLabel.className = 'col-label';
+                colLabel.innerText = c;
+                board.appendChild(colLabel);
+            }
+
+            for (let r = 0; r < rows; r++) {
+                // Add row label
+                var rowLabel = document.createElement('div');
+                rowLabel.className = 'row-label';
+                rowLabel.innerText = String.fromCharCode(65 + r);
+                board.appendChild(rowLabel);
+
+                for (let c = 0; c < cols; c++) {
+                    var cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    cell.addEventListener('click', function() {
+                    if(gameBoard[r][c] == 0 )
+                    {
+                        if(czy_miesci_sie(gameBoard,r,c,wybrany)==true)
+                        {
+                            alert("robi put")
+                            socket.emit('put_ship', {'room': 22, 'x': r, 'y': c, 'username': "test",'ship_lenght': wybrany[1] ,'ship_high': wybrany[0]})
+                        }
+                       // setTimeout(function() {
+                         //   location.reload();
+                       // }, 1000); // Adjust the delay as needed
+                    }else
+                    {alert("juz strzeliles tam")}
+                    });
+                    if (gameBoard[r][c] == 1) {
+                        cell.style.backgroundColor = 'blue';
+                    }
+                    board.appendChild(cell);
+                }
+            }
+
+            boardContainer.appendChild(board);
+        }
+//////////////////////// tworzenie testowego gracza 
+             socket.emit('put_ship', {'room': 22, 'x': -1, 'y': -1, 'username': "test",'ship_lenght': 1 ,'ship_high': 1})
+//////////////////////// --
+             getBoard(22,"test").then((value) => {
+                createBoard(value)
+                });
+                
+                    
+
+
+            create_ship_board(3,1);
+            create_ship_board(2,1);
+            create_ship_board(2,1);
+            create_ship_board(1,1);
+            create_ship_board(1,1);
+            create_ship_board(1,3);
+            create_ship_board(1,2);
+            create_ship_board(1,4);
+            create_ship_board(1,1);
+            create_ship_board(1,1);
+        
+        function start()
+        {
+            alert("start tu jest")
+        }
+        function clear()
+        {
+            socket.emit('clear',{'username': "test", 'room': 22})
+        }
+        function czy_miesci_sie(tablica,row,col,ship_size){
+    console.log("wymiary statku")
+    console.log(ship_size);
+
+    let ship_len=ship_size[0];
+    console.log("dlugosc" + ship_len)
+    let ship_width=ship_size[1];
+    console.log("szerokosc"+ ship_width)
+    let size = tablica[0].length;
+    if(ship_len !=1)
+    {   console.log("w tym wierszy chcesz");
+        console.log(tablica[row]);
+        let ship_length=ship_len;
+        if(col + ship_length > size)
+        {return false;}
+        for(let i = 0;i<ship_length;i++)
+        {
+            if(tablica[row][col + i]!=0)
+            {return false;}
+            for(let move_r = -1; move_r<2; move_r++)
+            {
+                for(let move_c = -1;move_c <2; move_c++)
+                {
+                    let r = row + move_r;
+                    let c = col + move_c +i;
+                    if(0 <= r && r < size && 0 <= c && c < size && tablica[r][c]!=0)
+                    {return false;} 
+                }
+            }
+        }
+    }
+    else
+    {
+        console.log("w tej kolumnie chcesz")
+        let ship_length=ship_width;
+        if(row + ship_length > size)
+        {return false;}
+        for(let i = 0;i<ship_length;i++)
+        {
+            if(tablica[row+i][col]!=0)
+            {return false;}
+            for(let move_r = -1; move_r<2; move_r++)
+            {
+                for(let move_c = -1;move_c <2; move_c++)
+                {
+                    let r = row + move_r + i;
+                    let c = col + move_c;
+                    if(0 <= r && r < size && 0 <= c && c < size && tablica[r][c]!=0)
+                    {return false;} 
+                }
+            }
+        }
+        
+
+    }
+    return true
+}
+
+        socket.emit('joinRoom', {username: username, room: room});
+        socket.on('startGame', function(data) {
+            getBoard(room).then((value) => {createBoard(value);});
+        });
+    </script>
+</body>
+</html>
