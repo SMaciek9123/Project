@@ -72,16 +72,19 @@
             <div id="board"></div>
         </div>
         <div>
-            <button onclick="strzal()">Strzelaj</button>
+            <button id="shootButton">Strzelaj</button>
         </div>
     
     </div>
     <script>
         var socket = io();
         var urlParams = new URLSearchParams(window.location.search);
-        var username = urlParams.get('username');
+        var username = getCookie('username');
         var room = urlParams.get('room');
         var tura=false;
+        let selX=0;
+        let selY=0;
+        document.getElementById('shootButton').addEventListener('click', strzal);
 
 
         document.getElementById('game-info').innerText = 'Room: ' + room;
@@ -123,10 +126,16 @@
                     cell.className = 'cell';
                     cell.dataset.row = r;
                     cell.dataset.col = c;
+                    if(c==selX && r==selY)
+                    {
+                        cell.style.backgroundColor = "yellow";
+                    }
                     cell.addEventListener('click', function() {
                     if(gameBoard[c][r] == 0||gameBoard[c][r] == 2 )
                     {
-                        strzal({'room': room, 'x': c, 'y': r, 'username': getCookie('username')});
+                        selX=c;
+                        selY=r;
+                        //strzal({'room': room, 'x': c, 'y': r, 'username': getCookie('username')});
                         //socket.emit('shoot', {'room': room, 'x': c, 'y': r, 'username': getCookie('username')});
                        // setTimeout(function() {
                          //   location.reload();
@@ -154,7 +163,9 @@
 
 
 
-        function strzal(data) {
+        function strzal() {
+            data={'username':username, 'room':room, 'x':selX, 'y':selY};
+            alert("qweqeqwwqe"+data['x']);
             var target_x = data['x']
             var target_y = data['y']
             room =  data['room']
