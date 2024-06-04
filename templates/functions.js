@@ -84,6 +84,11 @@ async function getData(room,username){
   return data;
 }
 
+async function getEnemyName(room,username){
+  var enemyName = await asyncEmit('giveEnemyName', {'room': room,'username': username});
+  return enemyName;
+}
+
 async function getEnemyBoard(room,username){
   var board = await asyncEmit('giveEnemyBoard', {'room':room, 'username':username}); //dodać który board ma zwrócic (room, player)
   console.log("tablica dla: "+username+" wynik ");

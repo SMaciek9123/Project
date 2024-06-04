@@ -121,6 +121,12 @@ def give_enemy_board(data):
     else:
         print("Błąd pobrania tablicy przeciwnika");
 
+@socketio.on('giveEnemyName')
+def give_enemy_name(data):
+    room=data['room']
+    username=data['username']
+    emit('giveEnemyName', get_enemy_username(room, username))
+
 @socketio.on('giveData')
 def on_give_data(data):
     username = data['username']
@@ -192,7 +198,7 @@ def on_shoot(data):
  
 
     if(game_data[room][username]):
-        temp=boards[room][get_enemy_username(room,username)]
+        temp=boards[room][username]
         temp[x][y]=temp[x][y]+1
         print(boards[room][username])
         print(temp)

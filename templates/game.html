@@ -21,11 +21,16 @@
         }
         .container {
             text-align: center;
-            max-width: 600px;
+            max-width: 1200px;
             padding: 20px;
             background-color: rgba(0, 0, 0, 0.7);
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .board-holder{
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 20px;
         }
         #board-container {
             display: flex;
@@ -36,6 +41,7 @@
             display: grid;
             gap: 1px;
             margin-top: 20px;
+            margin-right:10px;
         }
         #board-enemy {
             display: grid;
@@ -73,11 +79,16 @@
     <div class="container">
         <h1>Game Start</h1>
         <div id="game-info"></div>
+        <div class="board-holder">
+            <h1 id="enemy-title">Gracz1</h1>
+            <h1 id="player-title">Gracz1</h1>
         <div id="board-container">
             <div id="board"></div>
         </div>
+
         <div id="board-container-enemy">
             <div id="board-enemy"></div>
+        </div>
         </div>
         </div>
         <div>
@@ -90,12 +101,20 @@
         var socket = io();
         var urlParams = new URLSearchParams(window.location.search);
         var username = getCookie('username');
+        let enemy = "";
         var room = urlParams.get('room');
         var tura=false;
         let selX=0;
         let selY=0;
+
+        getEnemyName(room, username).then((value) =>{
+            document.getElementById('enemy-title').innerHTML=value;
+        });
+        document.getElementById('player-title').innerHTML=username;
+
         document.getElementById('shootButton').addEventListener('click', strzal);
         document.getElementById('game-info').innerText = 'Room: ' + room;
+
 
         function createBoard(gameBoard) {
             var boardContainer = document.getElementById('board-container');
@@ -135,6 +154,19 @@
                     cell.className = 'cell';
                     cell.dataset.row = r;
                     cell.dataset.col = c;
+                    if(c==selX && r==selY)
+                    {
+                        cell.style.backgroundColor = "yellow";
+                    }
+                    cell.addEventListener('click', function() {
+                        selX=c;
+                        selY=r;
+                        refreshBoards();
+                       // setTimeout(function() {
+                         //   location.reload();
+                       // }, 1000); // Adjust the delay as needed
+
+                    });
                     if (gameBoard[c][r] == 1) {
                         cell.style.backgroundColor = 'black';
                     }
@@ -185,22 +217,13 @@
                     cell.className = 'cell';
                     cell.dataset.row = r;
                     cell.dataset.col = c;
-                    if(c==selX && r==selY)
-                    {
-                        cell.style.backgroundColor = "yellow";
-                    }
-                    cell.addEventListener('click', function() {
-                        selX=c;
-                        selY=r;
-                        refreshBoards();
-                       // setTimeout(function() {
-                         //   location.reload();
-                       // }, 1000); // Adjust the delay as needed
 
-                    });
 
                     if (gameBoard[c][r] == 1) {
                         cell.style.backgroundColor = 'black';
+                    }
+                    if (gameBoard[c][r] == 2) {
+                        cell.style.backgroundColor = 'blue';
                     }
                     if (gameBoard[c][r] == 3) {
                         cell.style.backgroundColor = 'red';
@@ -219,6 +242,18 @@
         });
         getEnemyBoard(room,username).then((value) => {
         createBoardEnemy(value);
+        });
+        getData(room, username).then((value) => {
+        if(value==true)
+        {
+            document.getElementById('player-title').style.color="green";
+            document.getElementById('enemy-title').style.color="white";
+        }
+        else
+        {
+            document.getElementById('player-title').style.color="white";
+            document.getElementById('enemy-title').style.color="green";
+        }
         });
         }
         socket.on('shootsFired', (result) => {
