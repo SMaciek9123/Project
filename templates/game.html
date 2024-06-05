@@ -15,8 +15,8 @@
         <h1>Game Start</h1>
         <div id="game-info"></div>
         <div class="board-holder">
-            <h1 id="enemy-title">Gracz1</h1>
             <h1 id="player-title">Gracz1</h1>
+            <h1 id="enemy-title">Gracz1</h1>
         <div id="board-container">
             <div id="board"></div>
         </div>
@@ -66,6 +66,7 @@
             board.style.gridTemplateColumns = `repeat(${cols + 1}, 1fr)`; // +1 for column labels
 
             // Add column labels
+
             var emptyCorner = document.createElement('div');
             emptyCorner.className = 'col-label';
             board.appendChild(emptyCorner);
@@ -89,28 +90,20 @@
                     cell.className = 'cell';
                     cell.dataset.row = r;
                     cell.dataset.col = c;
-                    if(c==selX && r==selY)
-                    {
-                        cell.style.backgroundColor = "yellow";
-                    }
-                    cell.addEventListener('click', function() {
-                        selX=c;
-                        selY=r;
-                        refreshBoards();
-                       // setTimeout(function() {
-                         //   location.reload();
-                       // }, 1000); // Adjust the delay as needed
 
-                    });
-                    if (gameBoard[c][r] == 1) {
+                    if (gameBoard[r][c] == 1) {
                         cell.style.backgroundColor = 'black';
                     }
-                    if (gameBoard[c][r] == 3) {
+                    if (gameBoard[r][c] == 2) {
+                        cell.style.backgroundColor = 'blue';
+                    }
+                    if (gameBoard[r][c] == 3) {
                         cell.style.backgroundColor = 'red';
                     }
                     board.appendChild(cell);
                 }
             }
+
             boardContainer.appendChild(board);
         }
 
@@ -152,21 +145,28 @@
                     cell.className = 'cell';
                     cell.dataset.row = r;
                     cell.dataset.col = c;
+                    if(c==selX && r==selY)
+                    {
+                        cell.style.backgroundColor = "yellow";
+                    }
+                    cell.addEventListener('click', function() {
+                        selX=c;
+                        selY=r;
+                        refreshBoards();
+                       // setTimeout(function() {
+                         //   location.reload();
+                       // }, 1000); // Adjust the delay as needed
 
-
-                    if (gameBoard[c][r] == 1) {
+                    });
+                    if (gameBoard[r][c] == 1) {
                         cell.style.backgroundColor = 'black';
                     }
-                    if (gameBoard[c][r] == 2) {
-                        cell.style.backgroundColor = 'blue';
-                    }
-                    if (gameBoard[c][r] == 3) {
+                    if (gameBoard[r][c] == 3) {
                         cell.style.backgroundColor = 'red';
                     }
                     board.appendChild(cell);
                 }
             }
-
             boardContainer.appendChild(board);
         }
 
@@ -197,7 +197,7 @@
         });
 
         function strzal() {
-            data={'username':username, 'room':room, 'x':selX, 'y':selY};
+            data={'username':username, 'room':room, 'x':selY, 'y':selX};
             var target_x = data['x']
             var target_y = data['y']
             room =  data['room']

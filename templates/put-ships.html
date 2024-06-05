@@ -136,7 +136,7 @@
                         if(czy_miesci_sie(gameBoard,r,c,wybrany)==true)
                         {
                             alert("robi put")
-                            socket.emit('put_ship', {'room': 22, 'x': r, 'y': c, 'username': "test",'ship_lenght': wybrany[1] ,'ship_high': wybrany[0]})
+                            socket.emit('put_ship', {'room': room, 'x': r, 'y': c, 'username': username,'ship_lenght': wybrany[1] ,'ship_high': wybrany[0]})
                         }
                        // setTimeout(function() {
                          //   location.reload();
@@ -156,7 +156,7 @@
 //////////////////////// tworzenie testowego gracza 
              socket.emit('put_ship', {'room': 22, 'x': -1, 'y': -1, 'username': "test",'ship_lenght': 1 ,'ship_high': 1})
 //////////////////////// --
-             getBoard(22,"test").then((value) => {
+             getBoard(room, username).then((value) => {
                 createBoard(value)
                 });
                 
@@ -176,11 +176,11 @@
         
         function start()
         {
-            alert("start tu jest")
+           window.location.href = '/game?username=' + encodeURIComponent(username) + '&room=' + encodeURIComponent(room);
         }
         function clear()
         {
-            socket.emit('clear',{'username': "test", 'room': 22})
+            socket.emit('clear',{'username': username, 'room': room})
         }
         function czy_miesci_sie(tablica,row,col,ship_size){
     console.log("wymiary statku")

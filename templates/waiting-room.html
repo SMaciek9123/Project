@@ -40,16 +40,15 @@
     <script>
         var socket = io();
         var urlParams = new URLSearchParams(window.location.search);
-        var username = urlParams.get('username');
+        var username = getCookie('username');
         var room = urlParams.get('room');
-        var size = urlParams.get('size');
 
         document.getElementById('room-name').innerText = room;
 
-        socket.emit('waitForPlayer', {'username': username, 'room': room, 'size': size});
+        socket.emit('waitForPlayer', {'username': username, 'room': room});
 
         socket.on('startGame', function(data) {
-            window.location.href = '/game?username=' + encodeURIComponent(username) + '&room=' + encodeURIComponent(room) + '&size=' + encodeURIComponent(size);
+            window.location.href = '/ship?username=' + encodeURIComponent(username) + '&room=' + encodeURIComponent(room);
         });
     </script>
 </body>

@@ -111,11 +111,11 @@
 
         function joinLobby(room) {
             socket.emit('join', {'username': getCookie('username'), 'room': room});
-            window.location.href = '/game?' + '&room=' + encodeURIComponent(room);
+            window.location.href = '/ship?' + '&room=' + encodeURIComponent(room);
         }
 
         socket.on('startGame', function(data) {
-            window.location.href = '/game?username=' + encodeURIComponent(username) + '&room=' + encodeURIComponent(room) + '&size=' + encodeURIComponent(size); //useless or to change
+            window.location.href = '/ship?username=' + encodeURIComponent(username) + '&room=' + encodeURIComponent(room) + '&size=' + encodeURIComponent(size); //useless or to change
         });
 
     </script>

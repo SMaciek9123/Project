@@ -211,11 +211,11 @@ def on_put_ship(data):
             if(ship_lenght>1):
                 for i in range(ship_lenght):
                     if(x!=-1):
-                        boards[room][username][x+i][y]=1
+                        boards[room][username][x+i][y]=2
             else:
                 for i in range(ship_high):
                     if(x!=-1):
-                        boards[room][username][x][y+i]=1
+                        boards[room][username][x][y+i]=2
         else:
             boards[room][username]=[[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]]
     else:
