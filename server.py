@@ -59,7 +59,6 @@ def game():
     room = request.args.get('room')
     size = request.args.get('size')
     return render_template('game.html', username=username, room=room, size=size)
-    print("usun mnie")
 
 @app.route('/win')
 def congratulations():
