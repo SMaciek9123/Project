@@ -4,7 +4,10 @@
     <title>Battleships</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="functions.js"></script>
+    <script src="/functions"></script>
+    <script src="/cookies"></script>
+    <script src="/geter"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -72,7 +75,7 @@
             font-size: 0.8em;
             display: none;
         }
-    </style>
+        </style>
 </head>
 <body>
     <div class="container">
@@ -87,7 +90,7 @@
         </div>
         <ul id="messages"></ul>
     </div>
-    <script>
+    <script >
         var socket = io();
         isLogged().then(alert);
         if(isLogged()==true)

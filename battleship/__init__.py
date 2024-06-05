@@ -1,9 +1,17 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 from flask_socketio import SocketIO, join_room, leave_room, emit
+<<<<<<< Updated upstream:server.py
+=======
+import copy
+import random
+import os
+from os import listdir
+>>>>>>> Stashed changes:battleship/__init__.py
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
 socketio = SocketIO(app)
+import battleship.js_file
 
 users = []
 lobbies = {}
@@ -18,19 +26,21 @@ boards = {} # {'room' => {'user1'=> 'board',
 def index():
     return render_template('index.html')
 
-@app.route('/functions.js')
-def functions():
-    return render_template('functions.js')
-
 @app.route('/ship')
 def ship():
     return render_template('put-ships.html')
+
+@app.route('/hello')
+def hello():
+    return 'Hello World!'
 
 @app.route('/game-settings')
 def game_settings():
     username = request.args.get('username')
     room = request.args.get('room')
     return render_template('game-settings.html', username=username, room=room)
+
+
 
 @app.route('/waiting-room')
 def waiting_room():
