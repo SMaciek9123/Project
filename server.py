@@ -233,7 +233,7 @@ def on_shoot(data):
  
 
     if(game_data[room][username]):
-        temp=boards[room][username]
+        temp=boards[room][get_enemy_username(room, username)]
         temp[x][y]=temp[x][y]+1
         print(boards[room][username])
         print(temp)

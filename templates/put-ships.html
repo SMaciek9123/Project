@@ -98,6 +98,8 @@
             var board = document.createElement('div');
             board.id = 'board';
 
+            boardContainer.replaceChildren();
+
             var dimensions = [gameBoard.length, gameBoard[0].length];
 
             var rows = dimensions[0];
@@ -137,6 +139,7 @@
                         {
                             alert("robi put")
                             socket.emit('put_ship', {'room': room, 'x': r, 'y': c, 'username': username,'ship_lenght': wybrany[1] ,'ship_high': wybrany[0]})
+                            refreshBoard();
                         }
                        // setTimeout(function() {
                          //   location.reload();
@@ -144,7 +147,7 @@
                     }else
                     {alert("juz strzeliles tam")}
                     });
-                    if (gameBoard[r][c] == 1) {
+                    if (gameBoard[r][c] == 2) {
                         cell.style.backgroundColor = 'blue';
                     }
                     board.appendChild(cell);
@@ -156,11 +159,16 @@
 //////////////////////// tworzenie testowego gracza 
              socket.emit('put_ship', {'room': 22, 'x': -1, 'y': -1, 'username': "test",'ship_lenght': 1 ,'ship_high': 1})
 //////////////////////// --
+            function refreshBoard()
+            {
              getBoard(room, username).then((value) => {
                 createBoard(value)
                 });
-                
-                    
+             }
+
+             getBoard(room, username).then((value) => { // do zmiany
+                createBoard(value)
+                });
 
 
             create_ship_board(3,1);
