@@ -10,16 +10,23 @@ users = []
 lobbies = {}
 game_data = {}# {'room' => {'user1'=> tura,
               #             'user2' =>,tura}} 
+game_ships = {}
 win = {}
+
 boards = {} # {'room' => {'user1'=> 'board',
             #             'user2' =>'board2'}} 
-
+ship_type = {
+            '10': [4,4,3,2,1,1],
+            '7': [4,3,2,2,1],
+            '5': [3,2,1,1],
+            '3': [2,1],
+            }
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/functions.js')
+@app.route('/functions')
 def functions():
     return render_template('functions.js')
 
@@ -94,6 +101,11 @@ def on_select_board_size(data):
         lobbies[room]['size'] = size #nwm po co to
         win[room]= {host: 0}
         game_data[room]= {host: True}
+        ship_temp = copy.deepcopy(ship_type[size])
+        game_ships[room]= {host: ship_temp}
+        print(game_ships[room][host])
+        print("tuuuuuutajjjjjjjj sa statki dla:")
+        print(host)
         boards[room]={host: board}
         print(boards[room][host])
         emit('waitingForPlayer', room=room)
@@ -101,10 +113,6 @@ def on_select_board_size(data):
 
 def create_board(size):
     board = [[0 for _ in range(int(size))] for _ in range(int(size))]
-    coordinates = random.sample([(x, y) for x in range(int(size)) for y in range(int(size))], 4)
-    for x, y in coordinates:
-        board[x][y] = 2
-    
     return board
 
 
@@ -113,6 +121,15 @@ def on_give_board(data):
     room = data['room']
     username = data['username']
     emit('giveBoard', boards[room][username])
+
+@socketio.on('giveShips')
+def on_give_(data):
+    room = data['room']
+    h =lobbies[room]['host']
+    username = data['username']
+    print(game_ships[room])
+    emit('giveShips', game_ships[room][username])
+
 
 @socketio.on('giveEnemyBoard')
 def give_enemy_board(data):
@@ -141,7 +158,7 @@ def on_give_data(data):
 
 @socketio.on('givePlayersTable')
 def on_give_players_table(data):
-    room = data['room'];
+    room = data['room']
     emit('givePlayersTable', lobbies[room]['players'])
 
 
@@ -170,6 +187,8 @@ def on_join(data):
         join_room(room)
         size = lobbies[room]['size']
         boards[room][username]= copy.deepcopy(boards[room][host])
+        game_ships[room][username] = copy.deepcopy(ship_type[size])
+        print(game_ships[room][username])
         game_data[room][username]= False
         win[room][username]= 0
         print("\n")
@@ -194,6 +213,7 @@ def on_clear(data):
     room = data['room']
     username = data['username']
     size =  len(boards[room][username]) 
+    game_ships[room][username]= copy.deepcopy(ship_type[str(size)])
     boards[room][username] = [[0 for _ in range(int(size))] for _ in range(int(size))]
 
 @socketio.on('put_ship')
@@ -209,12 +229,16 @@ def on_put_ship(data):
     if(room in boards):
         if(username in boards[room]):
             if(ship_lenght>1):
+                game_ships[room][username].remove(ship_lenght)
+                print("teraz takie ci zostaly")
+                print(game_ships[room][username])
                 for i in range(ship_lenght):
-                    if(x!=-1):
                         boards[room][username][x+i][y]=2
             else:
+                game_ships[room][username].remove(ship_high)
+                print("teraz takie ci zostaly")
+                print(game_ships[room][username])
                 for i in range(ship_high):
-                    if(x!=-1):
                         boards[room][username][x][y+i]=2
         else:
             boards[room][username]=[[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]]

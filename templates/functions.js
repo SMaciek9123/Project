@@ -83,6 +83,11 @@ async function getData(room,username){
   console.log("getData wynik: "+data);
   return data;
 }
+async function getShips(room,username){
+  var data = await asyncEmit('giveShips', {'room': room,'username': username});
+  console.log("getShips wynik: "+data);
+  return data;
+}
 
 async function getEnemyName(room,username){
   var enemyName = await asyncEmit('giveEnemyName', {'room': room,'username': username});

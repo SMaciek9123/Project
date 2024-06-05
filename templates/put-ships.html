@@ -4,27 +4,10 @@
     <title>ships</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="functions.js"></script>
+    <script src="functions"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-<style>
-    .left-column {
-        flex: 70%;
-    }
-    .right-column {
-        flex: 30%;
-        margin-top: 35px;
-        margin-left: 35px;
-    }
-    .row {
-    display: flex;
-    }   
-    #sidebar {
-        width: 33.333%;
-        background-color: #f4f4f4;
-        padding: 20px;
-    }
-</style>
+
 <body>
     <div class="container">
         <h1>ułóz statki</h1>
@@ -56,8 +39,6 @@
         var username = getCookie('username');
         var room = urlParams.get('room');
         let wybrany = null;
-
-
         //document.getElementById('shootButton').addEventListener('click', strzal);
         document.getElementById('startButton').addEventListener('click', start);
         document.getElementById('resetButton').addEventListener('click', clear);
@@ -137,6 +118,7 @@
                     {
                         if(czy_miesci_sie(gameBoard,r,c,wybrany)==true)
                         {
+
                             alert("robi put")
                             socket.emit('put_ship', {'room': room, 'x': r, 'y': c, 'username': username,'ship_lenght': wybrany[1] ,'ship_high': wybrany[0]})
                             refreshBoard();
@@ -156,9 +138,6 @@
 
             boardContainer.appendChild(board);
         }
-//////////////////////// tworzenie testowego gracza 
-             socket.emit('put_ship', {'room': 22, 'x': -1, 'y': -1, 'username': "test",'ship_lenght': 1 ,'ship_high': 1})
-//////////////////////// --
             function refreshBoard()
             {
              getBoard(room, username).then((value) => {
@@ -170,21 +149,42 @@
                 createBoard(value)
                 });
 
+            getShips(room,username).then((value) => {
+                list_of_ship(value)
+            }
+        );
 
-            create_ship_board(3,1);
-            create_ship_board(2,1);
-            create_ship_board(2,1);
-            create_ship_board(1,1);
-            create_ship_board(1,1);
-            create_ship_board(1,3);
-            create_ship_board(1,2);
-            create_ship_board(1,4);
-            create_ship_board(1,1);
-            create_ship_board(1,1);
-        
+            
+
+        function list_of_ship(ships)
+        {
+            for (var s of ships) {
+                    console.log("statek "+ s)
+                    create_ship_board(s,1)
+                    create_ship_board(1,s)
+                }
+
+        }
         function start()
         {
-           window.location.href = '/game?username=' + encodeURIComponent(username) + '&room=' + encodeURIComponent(room);
+            let checkships = [1]
+            getShips(room, username).then(function(value) {
+                checkships = value;
+                console.log("lista sstatkow z getships: " + value);
+                console.log(checkships.length)
+
+            }).catch(function(error) {
+                console.error("Wystąpił błąd podczas pobierania danych: ", error);
+            });
+            setTimeout(function() {
+            if(checkships.length==0){
+                console.log("postawiles wszystkie statki");
+                window.location.href = '/game?username=' + encodeURIComponent(username) + '&room=' + encodeURIComponent(room);
+            }
+            else{
+                console.log("nie postawiles wszystkiego")
+            }
+        }, 1000);
         }
         function clear()
         {
