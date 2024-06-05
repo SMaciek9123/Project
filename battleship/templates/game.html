@@ -4,109 +4,66 @@
     <title>Game</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<<<<<<< Updated upstream:templates/game.html
-    <script src="functions.js"></script>
-<<<<<<< Updated upstream
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-image: url("/static/images/background.jpg");  
-            background-size: cover;
-            background-repeat: no-repeat;
-            color: white;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            flex-direction: column;
-        }
-        .container {
-            text-align: center;
-            max-width: 600px;
-            padding: 20px;
-            background-color: rgba(0, 0, 0, 0.7);
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-        #board-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        #board {
-            display: grid;
-            gap: 1px;
-            margin-top: 20px;
-        }
-        .cell {
-            width: 30px;
-            height: 30px;
-            background-color: white;
-            color:black;
-            border: 1px solid black;
-        }
-        .cellH-hit {
-            width: 30px;
-            height: 30px;
-            background-color: red;
-            border: 1px solid black;
-        }
-        .row-label, .col-label {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: rgba(255, 255, 255, 0.7);
-            border: 1px solid black;
-        }
-        .row-label {
-            width: 30px;
-            height: 30px;
-        }
-        .col-label {
-            width: 30px;
-            height: 30px;
-        }
+
     </style>
-=======
-=======
     <script src="/functions"></script>
     <script src="/cookies"></script>
     <script src="/geter"></script>
->>>>>>> Stashed changes:battleship/templates/game.html
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
     <div class="container">
         <h1>Game Start</h1>
         <div id="game-info"></div>
+        <div class="board-holder">
+            <h1 id="enemy-title">Gracz1</h1>
+            <h1 id="player-title">Gracz1</h1>
         <div id="board-container">
             <div id="board"></div>
         </div>
-        <div>
-            <input type="text" id="target" placeholder="Podaj cel">
-            <button onclick="strzal()">Strzelaj</button>
+
+        <div id="board-container-enemy">
+            <div id="board-enemy"></div>
         </div>
-    
+        </div>
+        </div>
+        <div>
+        <div>
+            <button id="shootButton">Strzelaj</button>
+        </div>
+
     </div>
     <script>
         var socket = io();
         var urlParams = new URLSearchParams(window.location.search);
-        var username = urlParams.get('username');
+        var username = getCookie('username');
+        let enemy = "";
         var room = urlParams.get('room');
-        var size = urlParams.get('size');
+        var tura=false;
+        let selX=0;
+        let selY=0;
 
-        getBoard(room).then(alert);
+        getEnemyName(room, username).then((value) =>{
+            document.getElementById('enemy-title').innerHTML=value;
+        });
+        document.getElementById('player-title').innerHTML=username;
 
-        document.getElementById('game-info').innerText = 'Room: ' + room + ', Board Size: ' + size;
+        document.getElementById('shootButton').addEventListener('click', strzal);
+        document.getElementById('game-info').innerText = 'Room: ' + room;
 
-        function createBoard(size) {
+
+        function createBoard(gameBoard) {
             var boardContainer = document.getElementById('board-container');
+            boardContainer.replaceChildren();
             var board = document.createElement('div');
             board.id = 'board';
 
-            var rows = parseInt(size);
-            var cols = parseInt(size);
+            var dimensions = [gameBoard.length, gameBoard[0].length];
+
+            var rows = dimensions[0];
+            var cols = dimensions[1];
 
             board.style.gridTemplateRows = `repeat(${rows + 1}, 1fr)`; // +1 for row labels
             board.style.gridTemplateColumns = `repeat(${cols + 1}, 1fr)`; // +1 for column labels
@@ -116,29 +73,99 @@
             emptyCorner.className = 'col-label';
             board.appendChild(emptyCorner);
 
-            for (var c = 1; c <= cols; c++) {
+            for (var c = 0; c < cols; c++) {
                 var colLabel = document.createElement('div');
                 colLabel.className = 'col-label';
                 colLabel.innerText = c;
                 board.appendChild(colLabel);
             }
 
-            for (var r = 0; r < rows; r++) {
+            for (let r = 0; r < rows; r++) {
                 // Add row label
                 var rowLabel = document.createElement('div');
                 rowLabel.className = 'row-label';
                 rowLabel.innerText = String.fromCharCode(65 + r);
                 board.appendChild(rowLabel);
 
-                for (var c = 0; c < cols; c++) {
+                for (let c = 0; c < cols; c++) {
                     var cell = document.createElement('div');
                     cell.className = 'cell';
-                    cell.id = c;
-                    cell.innerHTML = r;
-                    cell.onclick = function() {
-                        socket.emit('shoot', {'room': room, 'x':Math.floor(Math.random() * 10), 'y':Math.floor(Math.random() * 10)});
-                        cell.innerHTML = 'X';
-                    };
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    if(c==selX && r==selY)
+                    {
+                        cell.style.backgroundColor = "yellow";
+                    }
+                    cell.addEventListener('click', function() {
+                        selX=c;
+                        selY=r;
+                        refreshBoards();
+                       // setTimeout(function() {
+                         //   location.reload();
+                       // }, 1000); // Adjust the delay as needed
+
+                    });
+                    if (gameBoard[c][r] == 1) {
+                        cell.style.backgroundColor = 'black';
+                    }
+                    if (gameBoard[c][r] == 3) {
+                        cell.style.backgroundColor = 'red';
+                    }
+                    board.appendChild(cell);
+                }
+            }
+            boardContainer.appendChild(board);
+        }
+
+        function createBoardEnemy(gameBoard) {
+            var boardContainer = document.getElementById('board-container-enemy');
+            boardContainer.replaceChildren();
+            var board = document.createElement('div');
+            board.id = 'board-enemy';
+
+            var dimensions = [gameBoard.length, gameBoard[0].length];
+
+            var rows = dimensions[0];
+            var cols = dimensions[1];
+
+            board.style.gridTemplateRows = `repeat(${rows + 1}, 1fr)`; // +1 for row labels
+            board.style.gridTemplateColumns = `repeat(${cols + 1}, 1fr)`; // +1 for column labels
+
+            // Add column labels
+            var emptyCorner = document.createElement('div');
+            emptyCorner.className = 'col-label';
+            board.appendChild(emptyCorner);
+
+            for (var c = 0; c < cols; c++) {
+                var colLabel = document.createElement('div');
+                colLabel.className = 'col-label';
+                colLabel.innerText = c;
+                board.appendChild(colLabel);
+            }
+
+            for (let r = 0; r < rows; r++) {
+                // Add row label
+                var rowLabel = document.createElement('div');
+                rowLabel.className = 'row-label';
+                rowLabel.innerText = String.fromCharCode(65 + r);
+                board.appendChild(rowLabel);
+
+                for (let c = 0; c < cols; c++) {
+                    var cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+
+
+                    if (gameBoard[c][r] == 1) {
+                        cell.style.backgroundColor = 'black';
+                    }
+                    if (gameBoard[c][r] == 2) {
+                        cell.style.backgroundColor = 'blue';
+                    }
+                    if (gameBoard[c][r] == 3) {
+                        cell.style.backgroundColor = 'red';
+                    }
                     board.appendChild(cell);
                 }
             }
@@ -146,21 +173,90 @@
             boardContainer.appendChild(board);
         }
 
-        createBoard(size);
+        function refreshBoards()
+        {
+        getBoard(room,username).then((value) => {
+        createBoard(value);
+        });
+        getEnemyBoard(room,username).then((value) => {
+        createBoardEnemy(value);
+        });
+        getData(room, username).then((value) => {
+        if(value==true)
+        {
+            document.getElementById('player-title').style.color="green";
+            document.getElementById('enemy-title').style.color="white";
+        }
+        else
+        {
+            document.getElementById('player-title').style.color="white";
+            document.getElementById('enemy-title').style.color="green";
+        }
+        });
+        }
+        socket.on('shootsFired', (result) => {
+            alert("odbiór");
+            refreshBoards();
+        });
+
         function strzal() {
-            var target = document.getElementById("target").value;
+            data={'username':username, 'room':room, 'x':selX, 'y':selY};
+            var target_x = data['x']
+            var target_y = data['y']
+            room =  data['room']
+            username = data['username']
+
             getData(room, username).then(function(value) {
-                alert("Dane zwrócone przez getData: " + value);
-                alert("Strzelam w " + target);
+                tura = value;
+                console.log("wartosc tura z getdata: " + value);
+                console.log("Strzelam w " + target_x + "," + target_y);
             }).catch(function(error) {
-                console.error("Wystąpił błąd: ", error);
+                console.error("Wystąpił błąd podczas pobierania danych: ", error);
             });
+            refreshBoards();
+            setTimeout(function() {
+            if(tura==true){
+                console.log("twoja tura strzalasz");
+                socket.emit('shoot',data);
+            }
+            else{
+                console.log("nie twoja tura czekaj")
+            }
+        }, 1000);
+
         }
 
-        socket.emit('joinRoom', {username: username, room: room, size: size});
+        function my_turn(data){
+            room =  data['room']
+            username = data['username']
+            getData(room, username).then(function(value) {
+                tura = value;
+            }).catch(function(error) {
+                console.error("Wystąpił błąd podczas pobierania danych: ", error);
+            });
+            setTimeout(function() {
+            }, 1000);
+        }
 
+        socket.emit('joinRoom', {username: username, room: room});
+        socket.on('End', function(data) {
+            if(data['username']==getCookie('username')){
+                alert("wygrales!!")
+                socket.emit('on_disconnect',{})
+                window.location.href = '/win'
+            }
+            else{
+                alert("wygrałes")
+            }
+
+        });
+        socket.on('lose', function(data) {
+            alert("przegrales")
+            socket.emit('on_disconnect',{})
+            window.location.href = '/lose'
+        });
         socket.on('startGame', function(data) {
-            createBoard(data.size);
+            getBoard(room).then((value) => {createBoard(value);});
         });
     </script>
 </body>

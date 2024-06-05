@@ -6,12 +6,13 @@ async function isLogged(){
   var result = await compareCookie();
   if(result == true)
   {
-      alert("zalogowano jako "+getCookie('username'));
+      console.log("zalogowano jako "+getCookie('username'));
+      //alert("zalogowano jako "+getCookie('username'));
       return true;
   }
   else
   {
-      alert("zaloguj się");
+      console.log("zaloguj się");
       return false;
   }
 }
@@ -41,18 +42,13 @@ return "";
 async function compareCookie() {
   var socket = io();
   username=getCookie('username');
-  //alert(username);
-  //socket.emit('getUsers');
   var result = await asyncEmit('checkUsername', username);
-  //alert(result);
   return result;
 }
 
 async function asyncEmit(eventName, data) {
 var socket = io();
 return new Promise(function (resolve, reject) {
-//alert("dzialam");
-//alert(eventName);
   socket.emit(eventName, data);
   socket.on(eventName, result => {
     socket.off(eventName);
@@ -65,11 +61,39 @@ return new Promise(function (resolve, reject) {
 async function getBoard(room,username){
   var board = await asyncEmit('giveBoard', {'room': room, 'username': username}); //dodać który board ma zwrócic (room, player)
   console.log("tablica dla: "+username+" wynik "+board);
+  logBoard(board);
   return board;
 }
 
+function logBoard(board){
+    let breaker = Math.sqrt(board.length);
+    for(let i=0; i<board.length; i++)
+    {
+        console.log(board[i]);
+        if(i==breaker)
+        {
+            breaker+=breaker;
+            console.log('\n');
+        }
+    }
+}
+
 async function getData(room,username){
-  var data = await asyncEmit('giveData', {'room': room,'username': username}); //dodać który board ma zwrócic (room, player)
-  alert("getData alert: "+data);
+  var data = await asyncEmit('giveData', {'room': room,'username': username});
+  console.log("getData wynik: "+data);
   return data;
 }
+
+async function getEnemyName(room,username){
+  var enemyName = await asyncEmit('giveEnemyName', {'room': room,'username': username});
+  return enemyName;
+}
+
+async function getEnemyBoard(room,username){
+  var board = await asyncEmit('giveEnemyBoard', {'room':room, 'username':username}); //dodać który board ma zwrócic (room, player)
+  console.log("tablica dla: "+username+" wynik ");
+  logBoard(board);
+  return board;
+}
+
+
