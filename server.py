@@ -43,10 +43,13 @@ def game_settings():
 
 @app.route('/waiting-room')
 def waiting_room():
-    username = request.args.get('username')
     room = request.args.get('room')
-    size = request.args.get('size')
-    return render_template('waiting-room.html', username=username, room=room, size=size)
+    return render_template('waiting-room.html', room=room)
+
+@app.route('/wait-for-game')
+def wait_for_game():
+    room = request.args.get('room')
+    return render_template('wait-for-game.html', room=room)
 
 @app.route('/lobby-list')
 def lobby_list():

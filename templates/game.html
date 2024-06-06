@@ -258,8 +258,11 @@
             socket.emit('on_disconnect',{})
             window.location.href = '/lose'
         });
-        socket.on('startGame', function(data) {
-            getBoard(room).then((value) => {createBoard(value);});
+        getBoard(room,username).then((value) => {
+        createBoard(value);
+        });
+        getEnemyBoard(room,username).then((value) => {
+        createBoardEnemy(value);
         });
     </script>
 </body>

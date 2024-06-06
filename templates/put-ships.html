@@ -177,7 +177,7 @@
             setTimeout(function() {
             if(checkships.length==0){
                 console.log("postawiles wszystkie statki");
-                window.location.href = '/game?username=' + encodeURIComponent(username) + '&room=' + encodeURIComponent(room);
+                window.location.href = '/game?room=' + encodeURIComponent(room);
             }
             else{
                 console.log("nie postawiles wszystkiego")
