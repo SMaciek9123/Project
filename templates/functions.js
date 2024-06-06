@@ -69,11 +69,11 @@ function logBoard(board){
     let breaker = Math.sqrt(board.length);
     for(let i=0; i<board.length; i++)
     {
-        console.log(board[i]);
+        //console.log(board[i]);
         if(i==breaker)
         {
             breaker+=breaker;
-            console.log('\n');
+         //   console.log('\n');
         }
     }
 }

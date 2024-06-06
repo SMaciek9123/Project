@@ -140,24 +140,22 @@
         }
             function refreshBoard()
             {
-             getBoard(room, username).then((value) => {
-                createBoard(value)
-                });
+                getBoard(room, username).then((value) => {createBoard(value)});
+
+                getShips(room,username).then((value) => {list_of_ship(value)});
              }
 
              getBoard(room, username).then((value) => { // do zmiany
                 createBoard(value)
                 });
 
-            getShips(room,username).then((value) => {
-                list_of_ship(value)
-            }
-        );
+            getShips(room,username).then((value) => {list_of_ship(value)});
 
             
 
         function list_of_ship(ships)
         {
+            document.getElementById('ship-container').replaceChildren();
             for (var s of ships) {
                     console.log("statek "+ s)
                     create_ship_board(s,1)

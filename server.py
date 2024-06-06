@@ -12,6 +12,7 @@ game_data = {}# {'room' => {'user1'=> tura,
               #             'user2' =>,tura}} 
 game_ships = {}
 win = {}
+ship_sink = {}
 
 boards = {} # {'room' => {'user1'=> 'board',
             #             'user2' =>'board2'}} 
@@ -101,6 +102,7 @@ def on_select_board_size(data):
         lobbies[room]['size'] = size #nwm po co to
         win[room]= {host: 0}
         game_data[room]= {host: True}
+        ship_sink[room]= {host: 0}
         ship_temp = copy.deepcopy(ship_type[size])
         game_ships[room]= {host: ship_temp}
         print(game_ships[room][host])
@@ -190,6 +192,7 @@ def on_join(data):
         game_ships[room][username] = copy.deepcopy(ship_type[size])
         print(game_ships[room][username])
         game_data[room][username]= False
+        ship_sink[room][username]=0
         win[room][username]= 0
         print("\n")
         print(boards[room])
@@ -260,11 +263,25 @@ def on_shoot(data):
         temp=boards[room][get_enemy_username(room, username)]
         temp[x][y]=temp[x][y]+1
         print(boards[room][username])
-        print(temp)
-        liczba_trafien = sum(1 for w in temp for e in w if e == 3)
-        print("liczba trafien= ")
-        print(liczba_trafien)
-        if(liczba_trafien==4):
+
+               #przeszukanie tablicy w obrebie [x][y]
+        print("spraaaaaaaaaaawdzeeeeenieeee")
+
+        print(len(ship_type[str(len(temp))]))
+        print("tyle musisz tracid")
+        if(temp[x][y]==3 or temp[x][y]==4 ):
+            print("trafiles ake czy zatopiles?")
+            print(zatopiony(temp,x,y))
+            if(zatopiony(temp,x,y)):
+                print("tyyyyle zatopilesssss")
+                print(ship_sink[room][username])
+                ship_sink[room][username]= ship_sink[room][username] + 1
+                temp= paint_zatopiony(temp,x,y)
+                print("lista nowej tablicy")
+                print(temp)
+                print(ship_sink[room][username])
+        if(ship_sink[room][username]==len(ship_type[str(len(boards[room][get_enemy_username(room, username)]))])):
+            print("wyyyybraaaalesssssss")
             win[room][players[0]]=-1
             win[room][players[1]]=-1
             win[room][username]=1
@@ -289,7 +306,68 @@ def get_enemy_username(room, username):
     elif lobbies[room]['players'][1] == username:
         return lobbies[room]['players'][0]
     else:
-        print("Błąd pobrania nazwy przeciwnika");
+        print("Błąd pobrania nazwy przeciwnika")
+
+def zatopiony(tablica,x,y):
+    size = len(tablica)
+    for i in range(x,size):
+        if tablica[i][y]==1 or tablica[i][y]==0:
+            break
+        if tablica[i][y]==3:
+            continue
+        if tablica[i][y]==2:
+            return False
+    for i in reversed(range(x-1)):
+        if tablica[i][y]==1 or tablica[i][y]==0:
+            break
+        if tablica[i][y]==3:
+            continue
+        if tablica[i][y]==2:
+               return False     
+    for i in range(y,size):
+        if tablica[x][y]==1 or tablica[x][y]==0:
+            break
+        if tablica[x][i]==3:
+            continue
+        if tablica[x][i]==2:
+            return False
+    for i in reversed(range(y-1)):
+        if tablica[x][y]==1 or tablica[x][y]==0:
+            break
+        if tablica[x][i]==3:
+            continue
+        if tablica[x][i]==2:
+            return False 
+        
+    return tablica
+
+def paint_zatopiony(tablica,x,y):
+    size = len(tablica)
+    for i in range(x,size):
+        if tablica[i][y]==1 or tablica[i][y]==0:
+            break
+        if tablica[i][y]==3:
+            tablica[i][y]=4
+            continue
+    for i in reversed(range(x)):
+        if tablica[i][y]==1 or tablica[i][y]==0:
+            break
+        if tablica[i][y]==3:
+            tablica[i][y]=4
+            continue   
+    for i in range(y,size):
+        if tablica[x][i]==1 or tablica[x][i]==0:
+            break
+        if tablica[x][i]==3:
+            tablica[x][i]=4
+            continue
+    for i in reversed(range(y)):
+        if tablica[x][i]==1 or tablica[x][i]==0:
+            break
+        if tablica[x][i]==3:
+            tablica[x][i]=4
+            continue
+    return tablica
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=8002, debug=True)
