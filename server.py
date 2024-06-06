@@ -269,6 +269,7 @@ def on_shoot(data):
         print("tyle musisz tracid")
         if(temp[x][y]==3 or temp[x][y]==4 ):
             print("trafiles ake czy zatopiles?")
+            print("zatopiony:")
             print(zatopiony(temp,x,y))
             if(zatopiony(temp,x,y)):
                 print("tyyyyle zatopilesssss")
@@ -307,40 +308,46 @@ def get_enemy_username(room, username):
         print("Błąd pobrania nazwy przeciwnika")
 
 def zatopiony(tablica,x,y):
-    size = len(tablica)
+    size = len(tablica)-1
     for i in range(x,size):
         if tablica[i][y]==1 or tablica[i][y]==0:
             break
         if tablica[i][y]==3:
             continue
         if tablica[i][y]==2:
+            print("for1")
             return False
-    for i in reversed(range(x-1)):
+    for i in reversed(range(x)):
         if tablica[i][y]==1 or tablica[i][y]==0:
             break
         if tablica[i][y]==3:
             continue
         if tablica[i][y]==2:
-               return False     
+            print("for2")
+            return False     
     for i in range(y,size):
-        if tablica[x][y]==1 or tablica[x][y]==0:
+        print("for3:")
+        print(i)
+        if tablica[x][i]==1 or tablica[x][i]==0:
             break
         if tablica[x][i]==3:
             continue
         if tablica[x][i]==2:
+            print("for3FALSE")
             return False
-    for i in reversed(range(y-1)):
-        if tablica[x][y]==1 or tablica[x][y]==0:
+    for i in reversed(range(y)):
+        if tablica[x][i]==1 or tablica[x][i]==0:
             break
         if tablica[x][i]==3:
             continue
         if tablica[x][i]==2:
+            print("for4")
             return False 
         
-    return tablica
+    return True
 
 def paint_zatopiony(tablica,x,y):
-    size = len(tablica)
+    size = len(tablica)-1
     for i in range(x,size):
         if tablica[i][y]==1 or tablica[i][y]==0:
             break
@@ -365,7 +372,7 @@ def paint_zatopiony(tablica,x,y):
         if tablica[x][i]==3:
             tablica[x][i]=4
             continue
-    return tablica
+    return True
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=8002, debug=True)
