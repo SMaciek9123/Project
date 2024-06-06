@@ -264,8 +264,6 @@ def on_shoot(data):
         temp[x][y]=temp[x][y]+1
         print(boards[room][username])
 
-               #przeszukanie tablicy w obrebie [x][y]
-        print("spraaaaaaaaaaawdzeeeeenieeee")
 
         print(len(ship_type[str(len(temp))]))
         print("tyle musisz tracid")
@@ -280,6 +278,8 @@ def on_shoot(data):
                 print("lista nowej tablicy")
                 print(temp)
                 print(ship_sink[room][username])
+        else:
+            game_data[room][players[0]], game_data[room][players[1]]=game_data[room][players[1]], game_data[room][players[0]]
         if(ship_sink[room][username]==len(ship_type[str(len(boards[room][get_enemy_username(room, username)]))])):
             print("wyyyybraaaalesssssss")
             win[room][players[0]]=-1
@@ -292,9 +292,7 @@ def on_shoot(data):
         if(win[room][username]==-1):
             emit('lose',{})
         print("wykonano strzal teraz zamiana tur")
-        print( game_data[room])
-        game_data[room][players[0]], game_data[room][players[1]]=game_data[room][players[1]], game_data[room][players[0]]
-        print( game_data[room])
+        
     else:
         print("nie twoja tura")
     emit('shootsFired', {}, broadcast=True)
