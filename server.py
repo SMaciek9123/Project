@@ -264,38 +264,41 @@ def on_shoot(data):
 
     if(game_data[room][username]):
         temp=boards[room][get_enemy_username(room, username)]
-        temp[x][y]=temp[x][y]+1
-        print(boards[room][username])
+        if(temp[x][y]==0 or temp[x][y]==2):
+            temp[x][y]=temp[x][y]+1
+            print(boards[room][username])
 
 
-        print(len(ship_type[str(len(temp))]))
-        print("tyle musisz tracid")
-        if(temp[x][y]==3 or temp[x][y]==4 ):
-            print("trafiles ake czy zatopiles?")
-            print("zatopiony:")
-            print(zatopiony(temp,x,y))
-            if(zatopiony(temp,x,y)):
-                print("tyyyyle zatopilesssss")
-                print(ship_sink[room][username])
-                ship_sink[room][username]= ship_sink[room][username] + 1
-                temp= paint_zatopiony(temp,x,y)
-                print("lista nowej tablicy")
-                print(temp)
-                print(ship_sink[room][username])
+            print(len(ship_type[str(len(temp))]))
+            print("tyle musisz tracid")
+            if(temp[x][y]==3 or temp[x][y]==4 ):
+                print("trafiles ake czy zatopiles?")
+                print("zatopiony:")
+                print(zatopiony(temp,x,y))
+                if(zatopiony(temp,x,y)):
+                    print("tyyyyle zatopilesssss")
+                    print(ship_sink[room][username])
+                    ship_sink[room][username]= ship_sink[room][username] + 1
+                    temp= paint_zatopiony(temp,x,y)
+                    print("lista nowej tablicy")
+                    print(temp)
+                    print(ship_sink[room][username])
+            else:
+                game_data[room][players[0]], game_data[room][players[1]]=game_data[room][players[1]], game_data[room][players[0]]
+            if(ship_sink[room][username]==len(ship_type[str(len(boards[room][get_enemy_username(room, username)]))])):
+                print("wyyyybraaaalesssssss")
+                win[room][players[0]]=-1
+                win[room][players[1]]=-1
+                win[room][username]=1
+                emit('End',{'username': username})
+                print("wygrał")
+                print(username)
+                print(win[room])
+            if(win[room][username]==-1):
+                emit('lose',{})
+            print("wykonano strzal teraz zamiana tur")
         else:
-            game_data[room][players[0]], game_data[room][players[1]]=game_data[room][players[1]], game_data[room][players[0]]
-        if(ship_sink[room][username]==len(ship_type[str(len(boards[room][get_enemy_username(room, username)]))])):
-            print("wyyyybraaaalesssssss")
-            win[room][players[0]]=-1
-            win[room][players[1]]=-1
-            win[room][username]=1
-            emit('End',{'username': username})
-            print("wygrał")
-            print(username)
-            print(win[room])
-        if(win[room][username]==-1):
-            emit('lose',{})
-        print("wykonano strzal teraz zamiana tur")
+            print("złe pole")
         
     else:
         print("nie twoja tura")
@@ -311,7 +314,7 @@ def get_enemy_username(room, username):
         print("Błąd pobrania nazwy przeciwnika")
 
 def zatopiony(tablica,x,y):
-    size = len(tablica)-1
+    size = len(tablica)
     for i in range(x,size):
         if tablica[i][y]==1 or tablica[i][y]==0:
             break
@@ -350,7 +353,7 @@ def zatopiony(tablica,x,y):
     return True
 
 def paint_zatopiony(tablica,x,y):
-    size = len(tablica)-1
+    size = len(tablica)
     for i in range(x,size):
         if tablica[i][y]==1 or tablica[i][y]==0:
             break
@@ -375,7 +378,8 @@ def paint_zatopiony(tablica,x,y):
         if tablica[x][i]==3:
             tablica[x][i]=4
             continue
-    return True
+    return tablica
+
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=8002, debug=True)
