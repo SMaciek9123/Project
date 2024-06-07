@@ -3,4 +3,4 @@
 /workspace.xml
 venv
 .venv
-__pycashe__
+__pycache__

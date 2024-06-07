@@ -45,9 +45,8 @@
         let selX=0;
         let selY=0;
 
-        getEnemyName(room, username).then((value) =>{
-            document.getElementById('enemy-title').innerHTML=value;
-        });
+        getEnemyName(room, username).then((value) =>{document.getElementById('enemy-title').innerHTML=value; });
+        
         document.getElementById('player-title').innerHTML=username;
 
         document.getElementById('shootButton').addEventListener('click', strzal);
@@ -91,18 +90,11 @@
                     cell.dataset.row = r;
                     cell.dataset.col = c;
 
-                    if (gameBoard[r][c] == 1) {
-                        cell.style.backgroundColor = 'black';
-                    }
-                    if (gameBoard[r][c] == 2) {
-                        cell.style.backgroundColor = 'blue';
-                    }
-                    if (gameBoard[r][c] == 3) {
-                        cell.style.backgroundColor = 'red';
-                    }
-                    if (gameBoard[r][c] == 4) {
-                        cell.style.backgroundColor = 'brown';
-                    }
+                    if (gameBoard[r][c] == 1) { cell.style.backgroundColor = 'black'; }
+                    if (gameBoard[r][c] == 2) { cell.style.backgroundColor = 'blue';  }
+                    if (gameBoard[r][c] == 3) { cell.style.backgroundColor = 'red';   }
+                    if (gameBoard[r][c] == 4) {cell.style.backgroundColor = 'brown';  }
+
                     board.appendChild(cell);
                 }
             }
@@ -146,25 +138,18 @@
                     cell.className = 'cell';
                     cell.dataset.row = r;
                     cell.dataset.col = c;
+
                     if(c==selX && r==selY)
-                    {
-                        cell.style.backgroundColor = "yellow";
-                    }
+                    {cell.style.backgroundColor = "yellow";}
+
                     cell.addEventListener('click', function() {
                         selX=c;
                         selY=r;
                         refreshBoards();
-
                     });
-                    if (gameBoard[r][c] == 1) {
-                        cell.style.backgroundColor = 'black';
-                    }
-                    if (gameBoard[r][c] == 3) {
-                        cell.style.backgroundColor = 'red';
-                    }
-                    if (gameBoard[r][c] == 4) {
-                        cell.style.backgroundColor = 'brown';
-                    }
+                    if (gameBoard[r][c] == 1) {cell.style.backgroundColor = 'black';}
+                    if (gameBoard[r][c] == 3) {cell.style.backgroundColor = 'red';}
+                    if (gameBoard[r][c] == 4) {cell.style.backgroundColor = 'brown'; }
                     board.appendChild(cell);
                 }
             }
@@ -173,24 +158,21 @@
 
         function refreshBoards()
         {
-        getBoard(room,username).then((value) => {
-        createBoard(value);
-        });
-        getEnemyBoard(room,username).then((value) => {
-        createBoardEnemy(value);
-        });
-        getData(room, username).then((value) => {
-        if(value==true)
-        {
-            document.getElementById('player-title').style.color="green";
-            document.getElementById('enemy-title').style.color="white";
-        }
-        else
-        {
-            document.getElementById('player-title').style.color="white";
-            document.getElementById('enemy-title').style.color="green";
-        }
-        });
+            getBoard(room,username).then((value) => {createBoard(value);});
+            getEnemyBoard(room,username).then((value) => {createBoardEnemy(value);});
+            
+            getData(room, username).then((value) => {
+                if(value==true)
+                {
+                    document.getElementById('player-title').style.color="green";
+                    document.getElementById('enemy-title').style.color="white";
+                }
+                else
+                {
+                    document.getElementById('player-title').style.color="white";
+                    document.getElementById('enemy-title').style.color="green";
+                }
+            });
         }
         socket.on('shootsFired', (result) => {/*alert("odbiór");*/refreshBoards();});
 
@@ -205,9 +187,8 @@
                 tura = value;
                 console.log("wartosc tura z getdata: " + value);
                 console.log("Strzelam w " + target_x + "," + target_y);
-            }).catch(function(error) {
-                console.error("Wystąpił błąd podczas pobierania danych: ", error);
-            });
+            }).catch(function(error) {console.error("Wystąpił błąd podczas pobierania danych: ", error);});
+
             refreshBoards();
             setTimeout(function() {
             if(tura==true){
@@ -224,6 +205,7 @@
         function my_turn(data){
             room =  data['room']
             username = data['username']
+
             getData(room, username).then(function(value) {
                 tura = value;
             }).catch(function(error) {
@@ -250,12 +232,8 @@
             socket.emit('on_disconnect',{})
             window.location.href = '/lose'
         });
-        getBoard(room,username).then((value) => {
-        createBoard(value);
-        });
-        getEnemyBoard(room,username).then((value) => {
-        createBoardEnemy(value);
-        });
+        getBoard(room,username).then((value) => {createBoard(value);});
+        getEnemyBoard(room,username).then((value) => {createBoardEnemy(value);});
 
         socket.on('gameAbandoned', function(data) {
             alert('Gra została porzucona przez przeciwnika');
