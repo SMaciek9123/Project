@@ -32,6 +32,9 @@
         </div>
 
     </div>
+    <div class="exit-container">
+        <button id="exitButton" onclick="abandonGame(room,username)">Wyjdź</button>
+    </div>
     <script>
         var socket = io();
         var urlParams = new URLSearchParams(window.location.search);
@@ -65,8 +68,6 @@
             board.style.gridTemplateRows = `repeat(${rows + 1}, 1fr)`; // +1 for row labels
             board.style.gridTemplateColumns = `repeat(${cols + 1}, 1fr)`; // +1 for column labels
 
-            // Add column labels
-
             var emptyCorner = document.createElement('div');
             emptyCorner.className = 'col-label';
             board.appendChild(emptyCorner);
@@ -79,7 +80,6 @@
             }
 
             for (let r = 0; r < rows; r++) {
-                // Add row label
                 var rowLabel = document.createElement('div');
                 rowLabel.className = 'row-label';
                 rowLabel.innerText = String.fromCharCode(65 + r);
@@ -124,7 +124,6 @@
             board.style.gridTemplateRows = `repeat(${rows + 1}, 1fr)`; // +1 for row labels
             board.style.gridTemplateColumns = `repeat(${cols + 1}, 1fr)`; // +1 for column labels
 
-            // Add column labels
             var emptyCorner = document.createElement('div');
             emptyCorner.className = 'col-label';
             board.appendChild(emptyCorner);
@@ -137,7 +136,6 @@
             }
 
             for (let r = 0; r < rows; r++) {
-                // Add row label
                 var rowLabel = document.createElement('div');
                 rowLabel.className = 'row-label';
                 rowLabel.innerText = String.fromCharCode(65 + r);
@@ -156,9 +154,6 @@
                         selX=c;
                         selY=r;
                         refreshBoards();
-                       // setTimeout(function() {
-                         //   location.reload();
-                       // }, 1000); // Adjust the delay as needed
 
                     });
                     if (gameBoard[r][c] == 1) {
@@ -197,10 +192,7 @@
         }
         });
         }
-        socket.on('shootsFired', (result) => {
-            alert("odbiór");
-            refreshBoards();
-        });
+        socket.on('shootsFired', (result) => {/*alert("odbiór");*/refreshBoards();});
 
         function strzal() {
             data={'username':username, 'room':room, 'x':selY, 'y':selX};
@@ -264,6 +256,12 @@
         getEnemyBoard(room,username).then((value) => {
         createBoardEnemy(value);
         });
+
+        socket.on('gameAbandoned', function(data) {
+            alert('Gra została porzucona przez przeciwnika');
+            window.location.href = "/"; 
+        });
+
     </script>
 </body>
 </html>

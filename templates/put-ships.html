@@ -33,6 +33,9 @@
     </div>
     
     </div>
+    <div class="exit-container">
+        <button id="exitButton" onclick="abandonGame(room,username)">Wyjdź</button>
+    </div>
     <script>
         var socket = io();
         var urlParams = new URLSearchParams(window.location.search);
@@ -249,6 +252,10 @@
         socket.emit('joinRoom', {username: username, room: room});
         socket.on('startGame', function(data) {
             getBoard(room).then((value) => {createBoard(value);});
+        });
+        socket.on('gameAbandoned', function(data) {
+            alert('Gra została porzucona przez przeciwnika');
+            window.location.href = "/"; 
         });
     </script>
 </body>

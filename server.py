@@ -20,7 +20,7 @@ ship_type = {
             '10': [4,4,3,2,1,1],
             '7': [4,3,2,2,1],
             '5': [3,2,1,1],
-            '3': [2,1],
+            '3': [1],
             }
 
 @app.route('/')
@@ -214,6 +214,30 @@ def on_disconnect():
             break
 
 
+@socketio.on('abandonGame')
+def on_abandon_game(data):
+    room = data['room']
+    username = data['username']
+    print(f"{username} has abandoned the game in room {room}")
+    if room in lobbies:
+        enemy_username = get_enemy_username(room, username)
+        emit('gameAbandoned', {},broadcast=True,include_self=False)
+    
+        leave_room(room)
+        del lobbies[room]
+        if room in game_data:
+            del game_data[room]
+        if room in boards:
+            del boards[room]
+        if room in win:
+            del win[room]
+        if room in ship_sink:
+            del ship_sink[room]
+        if room in game_ships:
+            del game_ships[room]
+
+    
+
 @socketio.on('clear')
 def on_clear(data):
     room = data['room']
@@ -286,11 +310,12 @@ def on_shoot(data):
             else:
                 game_data[room][players[0]], game_data[room][players[1]]=game_data[room][players[1]], game_data[room][players[0]]
             if(ship_sink[room][username]==len(ship_type[str(len(boards[room][get_enemy_username(room, username)]))])):
-                print("wyyyybraaaalesssssss")
+                print("wyyyygraaaalesssssss")
                 win[room][players[0]]=-1
                 win[room][players[1]]=-1
                 win[room][username]=1
                 emit('End',{'username': username})
+                emit('lose',{},broadcast=True,include_self=False)
                 print("wygrał")
                 print(username)
                 print(win[room])

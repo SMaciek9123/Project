@@ -12,6 +12,22 @@ body {
     height: 100vh;
     flex-direction: column;
 }
+#exitButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #f00;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+.exit-container {
+    text-align: end;
+    margin-top: 90px;
+}
+
+#exitButton:hover {
+    background-color: #c00;
+}
 .board-wrapper {
     display: flex;
     justify-content: center;

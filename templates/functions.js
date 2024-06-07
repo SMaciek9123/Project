@@ -101,4 +101,21 @@ async function getEnemyBoard(room,username){
   return board;
 }
 
+function exitGame(room,username) {
+  if (confirm("Czy na pewno chcesz wyjść? "+username )) {
+      // Tu możesz dodać kod do zamknięcia gry lub przekierowania do innej strony
+      var enemy = getEnemyName(room,username)
+      socket.emit('leave',{'room': room,'username': username})
+      socket.emit('abandonGame',{'room': room,'username': enemy})
+      window.location.href = "/"; // Przykład przekierowania do strony głównej
+  }
+}
+function abandonGame(room,username) {
+  if (confirm("Czy na pewno chcesz wyjść?")) {
+      socket.emit('abandonGame', {username: username, room: room});
+      alert('Opuszczasz grę');
+      
+  }
+}
+
 
